@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#eaf4ff">
+    <title>TechSpec Scanner Privacy Policy</title>
+    <link rel="icon" href="/icons/icon-192.png" type="image/png">
+    <link rel="stylesheet" href="/support/support.css">
+  </head>
+  <body>
+    <main class="site-shell">
+      <nav class="site-nav" aria-label="Support navigation">
+        <a class="brand" href="/support/">
+          <img src="/icons/icon-192.png" alt="">
+          <span data-support-field="appName">TechSpec Scanner</span>
+        </a>
+        <div class="nav-links">
+          <a href="/support/">Support</a>
+          <a href="/support/privacy.html">Privacy</a>
+          <a href="/support/terms.html">Terms</a>
+          <a href="/support/legal.html">Legal</a>
+          <a href="/support/feedback.html">Feedback</a>
+          <a href="/">Open App</a>
+        </div>
+      </nav>
+
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Privacy</p>
+          <h1>Privacy Policy</h1>
+          <p>This draft explains how TechSpec Scanner processes photos, notes, usage counters, and local app data.</p>
+        </div>
+        <div class="hero-card">
+          <img src="/icons/icon-192.png" alt="">
+          <strong>Last updated</strong>
+          <span data-support-field="publicationDate">Draft</span>
+        </div>
+      </section>
+
+      <section class="content-grid">
+        <article class="content-panel notice wide">
+          <h2>Draft notice</h2>
+          <p>This privacy policy is a draft for publication review. It is not legal advice. Review the final wording before submitting the app.</p>
+        </article>
+
+        <article class="content-panel wide">
+          <h2>Overview</h2>
+          <p>TechSpec Scanner helps users identify mechanical components from photos, notes, measurements, and related scan information. The app uses an AI backend to analyze submitted component images and return a structured technical result.</p>
+        </article>
+
+        <article class="content-panel">
+          <h2>Data we process</h2>
+          <ul>
+            <li>Photos of mechanical components that you choose to submit for analysis.</li>
+            <li>Context notes, measurements, project names, technician notes, corrections, and evaluation labels that you enter.</li>
+            <li>Technical request information such as request time, anonymous installation ID, usage counters, and server-side scan limits.</li>
+            <li>App settings stored locally on your device, such as language, theme, recent scans, known parts, and testing entries.</li>
+          </ul>
+        </article>
+
+        <article class="content-panel">
+          <h2>How we use data</h2>
+          <ul>
+            <li>Analyze mechanical components and generate scan results.</li>
+            <li>Display scan history, reports, known-parts matches, and testing statistics.</li>
+            <li>Maintain usage limits, prevent abuse, and control API costs.</li>
+            <li>Improve product reliability based on scan evaluations and corrections.</li>
+          </ul>
+        </article>
+
+        <article class="content-panel">
+          <h2>AI processing</h2>
+          <p>When AI analysis is enabled, submitted component images and related scan context are sent to our backend and then to Google Gemini for processing. The AI response is returned to the app as a structured component identification result.</p>
+          <p>AI results may be incomplete or incorrect. Users should verify the output using physical measurements, markings, manufacturer documentation, and engineering judgment before using the result for maintenance, purchasing, safety, or design decisions.</p>
+        </article>
+
+        <article class="content-panel">
+          <h2>Local storage</h2>
+          <p>The app stores scan history, known parts, projects, reports, testing entries, language, theme, and readiness checklist data in local browser storage on your device. This local data remains on the device/browser unless you export it, delete it, clear browser data, or later use a future cloud-sync feature.</p>
+        </article>
+
+        <article class="content-panel">
+          <h2>Server storage</h2>
+          <p>The current backend stores usage counters such as daily and monthly scan counts. In a production deployment, server logs may also include timestamps, request status, approximate technical request metadata, and error information needed to operate and secure the service.</p>
+          <p>The app may generate a random anonymous installation ID stored locally on the device. This ID is used to apply per-device scan limits and prevent abuse. It is not intended to identify a person by name.</p>
+        </article>
+
+        <article class="content-panel">
+          <h2>Sharing with third parties</h2>
+          <p>We may share submitted scan data with service providers needed to operate the app, including Google Gemini / Google Cloud for AI analysis, hosting and infrastructure providers, and payment providers if paid plans are added later.</p>
+          <p>We do not sell personal data.</p>
+        </article>
+
+        <article class="content-panel">
+          <h2>User choices</h2>
+          <ul>
+            <li>Choose whether to submit images for analysis.</li>
+            <li>Delete local scan history, known-parts data, test logs, readiness data, preferences, acknowledgement data, or all local app data.</li>
+            <li>Export reports, JSON records, CSV test logs, known-parts libraries, or a full local backup.</li>
+            <li>Import a local backup to restore device/browser data.</li>
+            <li>Contact support to request help with account or server-side data, if accounts are added.</li>
+          </ul>
+        </article>
+
+        <article class="content-panel">
+          <h2>Security</h2>
+          <p>The Gemini API key is stored only on the backend and is not included in the app frontend. Production deployments should use HTTPS, server-side API protection, request size limits, usage limits, billing alerts, and secure environment variables.</p>
+        </article>
+
+        <article class="content-panel">
+          <h2>Children</h2>
+          <p>TechSpec Scanner is intended for technical and professional use and is not directed at children.</p>
+        </article>
+
+        <article class="content-panel wide">
+          <h2>Contact</h2>
+          <p>For privacy questions, contact:</p>
+          <p>
+            <span data-support-field="publisherName">TechSpec Scanner</span><br>
+            <a href="mailto:support@example.com" data-support-field="supportEmail">support@example.com</a><br>
+            <a href="/support/" data-support-field="supportWebsite">/support/</a>
+          </p>
+        </article>
+      </section>
+
+      <p class="footer"><span data-support-field="appName">TechSpec Scanner</span> privacy policy. Publisher: <span data-support-field="publisherName">TechSpec Scanner</span>. <a href="/support/terms.html">Terms of Use</a> · <a href="/support/legal.html">Legal Notice</a>.</p>
+    </main>
+    <script src="/support/support-config.js"></script>
+    <script src="/support/support.js"></script>
+  </body>
+</html>

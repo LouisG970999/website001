@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#eaf4ff">
+    <title>TechSpec Scanner Beta Feedback</title>
+    <link rel="icon" href="/icons/icon-192.png" type="image/png">
+    <link rel="stylesheet" href="/support/support.css">
+  </head>
+  <body>
+    <main class="site-shell">
+      <nav class="site-nav" aria-label="Support navigation">
+        <a class="brand" href="/support/">
+          <img src="/icons/icon-192.png" alt="">
+          <span data-support-field="appName">TechSpec Scanner</span>
+        </a>
+        <div class="nav-links">
+          <a href="/support/">Support</a>
+          <a href="/support/privacy.html">Privacy</a>
+          <a href="/support/terms.html">Terms</a>
+          <a href="/support/legal.html">Legal</a>
+          <a href="/support/feedback.html">Feedback</a>
+          <a href="/">Open App</a>
+        </div>
+      </nav>
+
+      <section class="hero compact">
+        <div>
+          <p class="eyebrow">Private beta</p>
+          <h1>Send Beta Feedback</h1>
+          <p>Tell us what felt confusing, what broke, and whether the scan result was useful. This helps shape the first public version.</p>
+        </div>
+      </section>
+
+      <section class="content-grid">
+        <article class="content-panel notice wide">
+          <h2>Before sending</h2>
+          <p>Do not include API keys, passwords, unrelated personal documents, or confidential third-party information. AI results are suggestions only and must be verified before real technical use.</p>
+        </article>
+
+        <article class="content-panel wide">
+          <h2>Feedback form</h2>
+          <form id="feedbackForm" class="feedback-form">
+            <label>
+              Category
+              <select id="feedbackCategory" name="category">
+                <option value="wrong-result">Wrong or uncertain identification</option>
+                <option value="ui-confusing">User interface confusion</option>
+                <option value="bug">Bug or crash</option>
+                <option value="feature">Feature request</option>
+                <option value="website">Website/support information</option>
+                <option value="other">Other</option>
+              </select>
+            </label>
+            <label>
+              Experience rating
+              <select id="feedbackRating" name="rating">
+                <option value="">No rating</option>
+                <option value="5">5 - Very good</option>
+                <option value="4">4 - Good</option>
+                <option value="3">3 - Okay</option>
+                <option value="2">2 - Frustrating</option>
+                <option value="1">1 - Could not use it</option>
+              </select>
+            </label>
+            <label>
+              Where did it happen?
+              <input id="feedbackPage" name="page" type="text" placeholder="e.g. scan, PDF export, settings, website">
+            </label>
+            <label>
+              Contact email (optional)
+              <input id="feedbackContact" name="contact" type="email" placeholder="your@email.com">
+            </label>
+            <label class="wide-field">
+              What happened?
+              <textarea id="feedbackMessage" name="message" rows="7" placeholder="Describe the component, what you expected, what the app returned, and what felt unclear." required></textarea>
+            </label>
+            <button class="button-link primary-action" type="submit">Send feedback</button>
+            <p id="feedbackStatus" class="small-note" role="status"></p>
+          </form>
+        </article>
+      </section>
+
+      <p class="footer"><span data-support-field="appName">TechSpec Scanner</span> beta feedback. <a href="/support/privacy.html">Privacy Policy</a> · <a href="/support/legal.html">Legal Notice</a>.</p>
+    </main>
+    <script src="/support/support-config.js"></script>
+    <script src="/support/support.js"></script>
+    <script src="/support/feedback.js"></script>
+  </body>
+</html>

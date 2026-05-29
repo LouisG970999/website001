@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TechSpec Scanner — AI-Assisted Mechanical Component Identification</title>
+<meta name="description" content="Take or upload photos of mechanical parts, add measurements and context, and receive structured AI-assisted identification with exportable technical reports.">
+<meta property="og:title" content="TechSpec Scanner">
+<meta property="og:description" content="AI-assisted mechanical component identification for workshops, maintenance, and technical documentation.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#07111f;
+  --bg2:#0a1728;
+  --bg3:#102139;
+  --card:#0d1b2f;
+  --border:rgba(60,130,200,0.1);
+  --border2:rgba(60,130,200,0.2);
+  --border3:rgba(60,130,200,0.38);
+  --blue:#4a9edd;
+  --blue2:#7dc4f5;
+  --pale:rgba(74,158,221,0.07);
+  --text:#edf7ff;
+  --mid:#9db3ca;
+  --dim:#63809a;
+  --warn:#f0c060;
+  --green:#5ec98a;
+}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Inter','Segoe UI',sans-serif;
+  font-size:14px;
+  line-height:1.65;
+  overflow-x:hidden;
+}
+
+/* BACKGROUND */
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.5;}
+.wrap{position:relative;z-index:1;}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 48px;height:56px;
+  background:rgba(8,12,16,0.88);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none;}
+.logo-hex{
+  width:34px;height:34px;border:1px solid var(--border2);
+  border-radius:8px;display:flex;align-items:center;justify-content:center;
+  background:#061629;overflow:hidden;
+}
+.logo-hex img{width:100%;height:100%;display:block;object-fit:cover;}
+.logo-hex svg{width:15px;height:15px;stroke:var(--blue);fill:none;stroke-width:1.6;stroke-linecap:round;}
+.logo-name{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:var(--text);letter-spacing:-.01em;}
+.logo-name span{color:var(--blue);}
+.nav-links{display:flex;align-items:center;gap:28px;list-style:none;}
+.nav-links a{font-size:12px;color:var(--mid);text-decoration:none;letter-spacing:.02em;transition:color .2s;}
+.nav-links a:hover{color:var(--text);}
+.nav-cta{
+  font-size:12px!important;color:var(--blue)!important;
+  border:1px solid var(--border2)!important;padding:6px 15px;
+  border-radius:6px;transition:background .2s,border-color .2s!important;
+}
+.nav-cta:hover{background:var(--pale)!important;border-color:var(--border3)!important;}
+
+/* SECTIONS */
+.section{padding:100px 48px;max-width:1080px;margin:0 auto;}
+.section-sm{padding:72px 48px;max-width:760px;margin:0 auto;}
+hr.div{border:none;border-top:1px solid var(--border);margin:0;}
+.label{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);
+  margin-bottom:16px;
+}
+.label::before{content:'';display:block;width:14px;height:1px;background:var(--blue);}
+h1{font-family:'Syne',sans-serif;font-size:clamp(42px,6vw,72px);font-weight:800;letter-spacing:-.03em;line-height:1.0;}
+h2{font-family:'Syne',sans-serif;font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-.025em;line-height:1.1;}
+h3{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--text);}
+.sub{font-size:15px;color:var(--mid);line-height:1.75;max-width:540px;margin:16px 0 34px;}
+
+/* BUTTONS */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:'Syne',sans-serif;font-weight:700;font-size:13px;
+  padding:12px 24px;border-radius:8px;text-decoration:none;
+  transition:transform .15s,opacity .15s;cursor:pointer;border:none;
+}
+.btn:hover{transform:translateY(-1px);}
+.btn:focus-visible,.tab:focus-visible,.fg input:focus-visible,.fg textarea:focus-visible,.fg select:focus-visible{
+  outline:2px solid rgba(125,196,245,.78);
+  outline-offset:3px;
+}
+.btn-blue{background:var(--blue);color:#fff;}
+.btn-blue:hover{opacity:.88;}
+.btn-ghost{background:transparent;color:var(--mid);border:1px solid var(--border2);}
+.btn-ghost:hover{border-color:var(--border3);color:var(--text);}
+
+/* HERO */
+.hero{
+  padding:130px 48px 90px;
+  max-width:1080px;margin:0 auto;
+  display:grid;grid-template-columns:1fr 380px;gap:60px;align-items:center;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:7px;
+  background:rgba(240,192,96,.07);border:1px solid rgba(240,192,96,.18);
+  border-radius:100px;padding:5px 14px;
+  font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--warn);
+  margin-bottom:24px;
+}
+.badge-dot{width:5px;height:5px;background:var(--warn);border-radius:50%;animation:pulse 2.2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.25;}}
+.hero h1 em{color:var(--blue);font-style:normal;}
+.hero-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.hero-note{
+  margin-top:24px;display:flex;gap:8px;align-items:flex-start;
+  font-size:11.5px;color:var(--dim);line-height:1.65;max-width:420px;
+}
+.hero-note svg{flex-shrink:0;width:13px;height:13px;stroke:var(--warn);fill:none;stroke-width:2;stroke-linecap:round;margin-top:1px;}
+.status-strip{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;
+  margin-top:24px;max-width:560px;
+}
+.status-pill{
+  border:1px solid var(--border2);background:rgba(74,158,221,.055);
+  border-radius:8px;padding:10px 12px;
+}
+.status-k{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-bottom:2px;}
+.status-v{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--text);}
+
+/* PHONE MOCKUP */
+.phone{
+  background:var(--bg3);border:1.5px solid var(--border2);
+  border-radius:26px;padding:12px;
+  box-shadow:0 40px 80px rgba(0,0,0,.55),0 0 0 1px rgba(74,158,221,.04);
+}
+.phone-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px 10px;border-bottom:1px solid var(--border);
+  background:var(--bg2);border-radius:18px 18px 0 0;
+}
+.ph-dots{display:flex;gap:5px;}
+.ph-dot{width:7px;height:7px;border-radius:50%;background:var(--border2);}
+.ph-title{font-size:10px;color:var(--dim);}
+.ph-live{font-size:10px;color:var(--blue);display:flex;align-items:center;gap:4px;}
+.ph-live::before{content:'';width:5px;height:5px;background:var(--blue);border-radius:50%;}
+.phone-screen{background:#060a0f;border-radius:0 0 18px 18px;overflow:hidden;}
+.scan-area{
+  aspect-ratio:4/3;position:relative;
+  display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at center,#0a1520 0%,#040810 100%);
+}
+.grid-lines{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(74,158,221,.05) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(74,158,221,.05) 1px,transparent 1px);
+  background-size:32px 32px;
+}
+.scan-box{position:relative;width:140px;height:120px;}
+.sc{position:absolute;width:16px;height:16px;border-color:var(--blue);border-style:solid;}
+.sc.tl{top:0;left:0;border-width:2px 0 0 2px;}
+.sc.tr{top:0;right:0;border-width:2px 2px 0 0;}
+.sc.bl{bottom:0;left:0;border-width:0 0 2px 2px;}
+.sc.br{bottom:0;right:0;border-width:0 2px 2px 0;}
+.scan-obj{
+  position:absolute;inset:14px;
+  border:1.5px solid rgba(74,158,221,.25);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+.scan-obj::before{content:'';width:32px;height:32px;border:1.5px solid rgba(74,158,221,.45);border-radius:50%;}
+.scan-line{
+  position:absolute;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--blue),transparent);
+  animation:scanmove 2.4s ease-in-out infinite;
+}
+@keyframes scanmove{0%{top:8%;opacity:0;}10%{opacity:1;}90%{opacity:1;}100%{top:92%;opacity:0;}}
+.result-pane{padding:14px 16px;background:var(--bg2);}
+.res-tag{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:3px;}
+.res-name{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--text);margin-bottom:10px;}
+.res-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.res-cell{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:7px 9px;}
+.res-k{font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);}
+.res-v{font-size:11.5px;font-weight:500;color:var(--text);}
+.res-badge{
+  float:right;font-size:9px;padding:2px 8px;border-radius:4px;
+  background:rgba(94,201,138,.1);border:1px solid rgba(94,201,138,.2);color:var(--green);
+}
+
+/* WORKFLOW */
+.wf-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:0;
+  border:1px solid var(--border);border-radius:8px;overflow:hidden;
+}
+.wf-cell{
+  padding:28px 24px;border-right:1px solid var(--border);
+  background:var(--card);transition:background .2s;
+}
+.wf-cell:last-child{border-right:none;}
+.wf-cell:hover{background:var(--bg3);}
+.wf-n{font-family:'Syne',sans-serif;font-size:34px;font-weight:800;color:rgba(74,158,221,.12);line-height:1;margin-bottom:14px;}
+.wf-icon{
+  width:34px;height:34px;background:var(--pale);border:1px solid var(--border2);
+  border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;
+}
+.wf-icon svg{width:16px;height:16px;stroke:var(--blue);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.wf-title{font-family:'Syne',sans-serif;font-weight:700;font-size:13.5px;color:var(--text);margin-bottom:7px;}
+.wf-desc{font-size:12px;color:var(--dim);line-height:1.75;}
+
+/* FEATURE GRID */
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.feat-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:8px;padding:24px;
+  transition:border-color .25s,background .25s;
+}
+.feat-card:hover{border-color:var(--border2);background:var(--bg3);}
+.feat-icon{
+  width:36px;height:36px;background:var(--pale);border:1px solid var(--border2);
+  border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;
+}
+.feat-icon svg{width:17px;height:17px;stroke:var(--blue);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.feat-title{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--text);margin-bottom:7px;}
+.feat-desc{font-size:12px;color:var(--dim);line-height:1.75;}
+
+/* WARN BLOCK */
+.warn{
+  background:rgba(240,192,96,.05);border:1px solid rgba(240,192,96,.18);
+  border-radius:8px;padding:22px 26px;display:flex;gap:14px;
+}
+.warn-ico{flex-shrink:0;width:18px;height:18px;stroke:var(--warn);fill:none;stroke-width:2;stroke-linecap:round;margin-top:2px;}
+.warn p{font-size:13px;color:var(--mid);line-height:1.75;}
+.warn strong{color:var(--warn);}
+.warn a{color:var(--warn);}
+
+/* TRUST ROW */
+.trust-row{
+  background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  padding:36px 48px;
+}
+.trust-inner{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:28px;}
+.trust-item{display:flex;gap:12px;align-items:flex-start;}
+.trust-ico{
+  flex-shrink:0;width:32px;height:32px;background:var(--pale);
+  border:1px solid var(--border2);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+}
+.trust-ico svg{width:15px;height:15px;stroke:var(--blue);fill:none;stroke-width:1.8;stroke-linecap:round;}
+.trust-title{font-family:'Syne',sans-serif;font-size:12.5px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.trust-desc{font-size:11.5px;color:var(--dim);line-height:1.65;}
+
+/* PROSE (inner pages) */
+.prose{font-size:13.5px;color:var(--mid);line-height:1.85;max-width:660px;}
+.prose h3{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text);margin:32px 0 8px;}
+.prose p{margin-bottom:14px;}
+.prose ul{padding-left:18px;margin-bottom:14px;}
+.prose ul li{margin-bottom:7px;}
+.prose strong{color:var(--text);font-weight:500;}
+.prose a{color:var(--blue);}
+
+/* TABS */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:48px;overflow-x:auto;}
+.tab{
+  font-family:'Syne',sans-serif;font-weight:700;font-size:12px;
+  padding:12px 20px;cursor:pointer;color:var(--dim);
+  border-bottom:2px solid transparent;white-space:nowrap;
+  transition:color .2s,border-color .2s;background:none;border-top:none;border-left:none;border-right:none;
+}
+.tab:hover{color:var(--mid);}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+.tab-pane{display:none;}
+.tab-pane.active{display:block;}
+
+/* BETA BOX */
+.beta-box{
+  background:var(--card);border:1px solid var(--border2);
+  border-radius:8px;padding:48px;text-align:center;
+}
+.beta-box h2{margin-bottom:10px;}
+.beta-box p{font-size:13.5px;color:var(--mid);max-width:400px;margin:0 auto 28px;}
+.beta-form{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.beta-form input{
+  background:var(--bg);border:1px solid var(--border2);border-radius:8px;
+  padding:11px 16px;font-family:'JetBrains Mono',monospace;font-size:13px;
+  color:var(--text);width:240px;outline:none;transition:border-color .2s;
+}
+.beta-form input:focus{border-color:var(--border3);}
+.beta-form input::placeholder{color:var(--dim);}
+.beta-note{margin-top:12px;font-size:11px;color:var(--dim);}
+
+/* SUPPORT FORM */
+.s-form{max-width:560px;}
+.fg{margin-bottom:16px;}
+.fg label{
+  display:block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--dim);margin-bottom:6px;
+}
+.fg input,.fg select,.fg textarea{
+  width:100%;background:var(--bg);border:1px solid var(--border2);
+  border-radius:8px;padding:10px 14px;
+  font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text);
+  outline:none;transition:border-color .2s;-webkit-appearance:none;
+}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--border3);}
+.fg input::placeholder,.fg textarea::placeholder{color:var(--dim);}
+.fg textarea{resize:vertical;min-height:100px;line-height:1.6;}
+.fg select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%233d5a72' stroke-width='2' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;cursor:pointer;
+}
+.checklist{list-style:none;padding:0;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:28px;}
+.checklist li{
+  display:flex;gap:10px;align-items:flex-start;padding:10px 14px;
+  border-bottom:1px solid var(--border);font-size:12.5px;color:var(--mid);line-height:1.6;
+}
+.checklist li:last-child{border-bottom:none;}
+.checklist li svg{flex-shrink:0;width:13px;height:13px;stroke:var(--blue);fill:none;stroke-width:2;stroke-linecap:round;margin-top:2px;}
+
+/* RELEASE */
+.release{border-left:2px solid var(--border);padding-left:24px;margin-bottom:40px;position:relative;}
+.release::before{content:'';position:absolute;left:-5px;top:5px;width:8px;height:8px;background:var(--blue);border-radius:50%;}
+.rel-ver{font-family:'Syne',sans-serif;font-size:13px;color:var(--blue);margin-bottom:3px;}
+.rel-date{font-size:11px;color:var(--dim);margin-bottom:14px;}
+.rel-tag{display:inline-block;font-size:9px;padding:2px 9px;border-radius:4px;margin-left:7px;}
+.tag-beta{background:rgba(74,158,221,.1);color:var(--blue);border:1px solid var(--border2);}
+.tag-plan{background:rgba(240,192,96,.07);color:var(--warn);border:1px solid rgba(240,192,96,.18);}
+.rel-list{list-style:none;padding:0;}
+.rel-list li{font-size:12.5px;color:var(--mid);padding:6px 0;border-bottom:1px solid var(--border);display:flex;gap:9px;}
+.rel-list li:last-child{border-bottom:none;}
+.rel-list li::before{content:'—';color:var(--blue);flex-shrink:0;}
+
+/* FOOTER */
+footer{
+  border-top:1px solid var(--border);padding:36px 48px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:18px;
+  max-width:1080px;margin:0 auto;
+}
+.foot-links{display:flex;gap:22px;list-style:none;flex-wrap:wrap;}
+.foot-links a{font-size:11.5px;color:var(--dim);text-decoration:none;transition:color .2s;}
+.foot-links a:hover{color:var(--mid);}
+.foot-status{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;color:var(--dim);}
+.s-dot{width:5px;height:5px;background:var(--warn);border-radius:50%;animation:pulse 2.2s infinite;}
+.foot-copy{font-size:10.5px;color:var(--dim);margin-top:4px;}
+
+@media(max-width:900px){
+  nav{padding:0 20px;}
+  .nav-links{display:none;}
+  .hero{grid-template-columns:1fr;padding:110px 20px 60px;gap:36px;}
+  .status-strip{grid-template-columns:1fr;}
+  .section{padding:64px 20px;}
+  .section-sm{padding:52px 20px;}
+  .wf-grid{grid-template-columns:1fr 1fr;}
+  .wf-cell{border-right:none;border-bottom:1px solid var(--border);}
+  .feat-grid{grid-template-columns:1fr 1fr;}
+  .trust-inner{grid-template-columns:1fr;gap:18px;}
+  .trust-row{padding:28px 20px;}
+  .beta-box{padding:32px 20px;}
+  footer{padding:28px 20px;flex-direction:column;align-items:flex-start;}
+}
+@media(max-width:560px){
+  .feat-grid{grid-template-columns:1fr;}
+  .wf-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<canvas id="bg-canvas" aria-hidden="true"></canvas>
+<div class="wrap">
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo" aria-label="TechSpec Scanner home" onclick="showTab('home');return false;">
+    <div class="logo-hex">
+      <img src="../Logo_TechSpec_Scanner.png" alt="" loading="eager">
+    </div>
+    <span class="logo-name">TechSpec <span>Scanner</span></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#product" onclick="showTab('product')">Product</a></li>
+    <li><a href="#disclaimer" onclick="showTab('disclaimer')">AI Disclaimer</a></li>
+    <li><a href="#privacy" onclick="showTab('privacy')">Privacy</a></li>
+    <li><a href="#support" onclick="showTab('support')">Support</a></li>
+    <li><a href="/support/legal.html">Legal</a></li>
+    <li><a href="/support/feedback.html">Feedback</a></li>
+    <li><a href="#support" onclick="showTab('support')" class="nav-cta">Get in touch</a></li>
+  </ul>
+</nav>
+
+<!-- PAGE TABS -->
+<div id="home" class="wrap">
+
+<!-- ============================================================ HOME ============================================================ -->
+<div id="tab-home" class="tab-pane active">
+
+<!-- HERO -->
+<div class="hero">
+  <div>
+    <div class="hero-badge"><span class="badge-dot"></span> Private beta · App Store preparation</div>
+    <h1>TechSpec<br><em>Scanner.</em></h1>
+    <p class="sub">Identify mechanical components from iPhone photos, review the visible evidence, and export clean technical reports for maintenance, documentation, or procurement.</p>
+    <div class="hero-actions">
+      <a href="#" class="btn btn-blue" onclick="showTab('support');return false;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Join beta
+      </a>
+      <a href="#" class="btn btn-ghost" onclick="showTab('privacy');return false;">View privacy policy</a>
+    </div>
+    <div class="hero-note">
+      <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      AI results are suggestions only. Always verify with physical measurements, markings, and qualified technical judgment before use.
+    </div>
+    <div class="status-strip" aria-label="Product highlights">
+      <div class="status-pill"><div class="status-k">Platform</div><div class="status-v">iPhone PWA</div></div>
+      <div class="status-pill"><div class="status-k">Languages</div><div class="status-v">EN · DE · FR · ES</div></div>
+      <div class="status-pill"><div class="status-k">Exports</div><div class="status-v">PDF · JSON · CSV</div></div>
+    </div>
+  </div>
+
+  <!-- MOCKUP -->
+  <div class="phone" role="img" aria-label="App preview showing component scan">
+    <div class="phone-bar">
+      <div class="ph-dots"><div class="ph-dot"></div><div class="ph-dot"></div><div class="ph-dot"></div></div>
+      <span class="ph-title">TechSpec Scanner</span>
+      <span class="ph-live">Scanning</span>
+    </div>
+    <div class="phone-screen">
+      <div class="scan-area">
+        <div class="grid-lines"></div>
+        <div class="scan-line"></div>
+        <div class="scan-box">
+          <div class="sc tl"></div><div class="sc tr"></div><div class="sc bl"></div><div class="sc br"></div>
+          <div class="scan-obj"></div>
+        </div>
+      </div>
+      <div class="result-pane">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
+          <div>
+            <div class="res-tag">Identified component</div>
+            <div class="res-name">Deep Groove Ball Bearing · ISO 6205</div>
+          </div>
+          <div class="res-badge">78% conf.</div>
+        </div>
+        <div class="res-grid">
+          <div class="res-cell"><div class="res-k">Bore dia.</div><div class="res-v">25 mm</div></div>
+          <div class="res-cell"><div class="res-k">Outer dia.</div><div class="res-v">52 mm</div></div>
+          <div class="res-cell"><div class="res-k">Width</div><div class="res-v">15 mm</div></div>
+          <div class="res-cell"><div class="res-k">Verify</div><div class="res-v" style="color:var(--warn);font-size:10px;">Physical measure</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="div">
+
+<!-- WORKFLOW -->
+<section class="section">
+  <div class="label">Workflow</div>
+  <h2>From photo to report.</h2>
+  <p class="sub">A structured, repeatable process for quick first-pass identification on the shop floor, in the field, or at a desk.</p>
+  <div class="wf-grid">
+    <div class="wf-cell">
+      <div class="wf-n">01</div>
+      <div class="wf-icon"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+      <div class="wf-title">Capture</div>
+      <div class="wf-desc">Guided photo slots for overview, markings, side view, and scale. Or upload from your camera roll.</div>
+    </div>
+    <div class="wf-cell">
+      <div class="wf-n">02</div>
+      <div class="wf-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+      <div class="wf-title">Analyse</div>
+      <div class="wf-desc">Add measurements and context, then submit for AI-assisted identification with confidence scores and uncertainty flags.</div>
+    </div>
+    <div class="wf-cell">
+      <div class="wf-n">03</div>
+      <div class="wf-icon"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+      <div class="wf-title">Verify</div>
+      <div class="wf-desc">Review visible evidence, recommended checks, and uncertainty notes. Apply corrections and save to your known-parts library.</div>
+    </div>
+    <div class="wf-cell">
+      <div class="wf-n">04</div>
+      <div class="wf-icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+      <div class="wf-title">Export</div>
+      <div class="wf-desc">Export PDF, JSON, or CSV technical reports. Back up locally or share for documentation and procurement.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- FEATURES -->
+<section class="section">
+  <div class="label">Features</div>
+  <h2>Built for technical work.</h2>
+  <p class="sub">Focused on the functions users actually need: capture, evidence, verification, local records, and export.</p>
+  <div class="feat-grid">
+    <div class="feat-card">
+      <div class="feat-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+      <div class="feat-title">Guided scan slots</div>
+      <div class="feat-desc">Step-by-step capture for overview, markings, profile, and scale — reducing missed evidence.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></div>
+      <div class="feat-title">Evidence-based results</div>
+      <div class="feat-desc">Every result includes visible evidence used, confidence level, uncertainty notes, and recommended checks.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+      <div class="feat-title">Known-parts library</div>
+      <div class="feat-desc">Save verified components locally with your notes, corrections, and reference photos for future jobs.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+      <div class="feat-title">Report export</div>
+      <div class="feat-desc">PDF, JSON, CSV, and local backup — with photos, AI analysis, notes, and recommended checks.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
+      <div class="feat-title">Local-first storage</div>
+      <div class="feat-desc">All history, known parts, and settings stay on your device. Nothing leaves without your action.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <div class="feat-title">Backend-protected API</div>
+      <div class="feat-desc">Gemini processing happens server-side. The API key is never stored on or sent to your device.</div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST ROW -->
+<div class="trust-row">
+  <div class="trust-inner">
+    <div class="trust-item">
+      <div class="trust-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <div>
+        <div class="trust-title">Backend-protected API key</div>
+        <div class="trust-desc">Gemini processing is server-side. Your key is never exposed to the device.</div>
+      </div>
+    </div>
+    <div class="trust-item">
+      <div class="trust-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
+      <div>
+        <div class="trust-title">Local-first records</div>
+        <div class="trust-desc">Scan history, known parts, and preferences stay on your device unless exported.</div>
+      </div>
+    </div>
+    <div class="trust-item">
+      <div class="trust-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+      <div>
+        <div class="trust-title">Clear AI limitations</div>
+        <div class="trust-desc">Every result includes uncertainty flags and recommended checks. Never claims to replace engineering judgment.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DISCLAIMER -->
+<div class="section-sm">
+  <div class="warn">
+    <svg class="warn-ico" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <p><strong>AI results require verification.</strong> TechSpec Scanner provides AI-assisted suggestions, not certified engineering verification. Always confirm results with physical measurements, visible markings, manufacturer documentation, and qualified technical judgment before using them for safety-critical, purchasing, repair, or design decisions. <a href="#" onclick="showTab('disclaimer');return false;">Read full disclaimer →</a></p>
+  </div>
+</div>
+
+<!-- BETA -->
+<section class="section" id="beta">
+  <div class="beta-box">
+    <div class="label" style="justify-content:center;margin-bottom:14px;">Coming soon</div>
+    <h2>Join the beta.</h2>
+    <p>TechSpec Scanner is in private beta while the app, safety wording, support flow, and App Store material are being finalized.</p>
+    <form class="beta-form" onsubmit="betaSubmit(event)">
+      <input type="email" placeholder="your@email.com" required>
+      <button type="submit" class="btn btn-blue">Request access</button>
+    </form>
+    <div class="beta-note" id="beta-msg">No spam. Beta notifications only.</div>
+  </div>
+</section>
+
+</div><!-- /tab-home -->
+
+<!-- ============================================================ PRODUCT ============================================================ -->
+<div id="tab-product" class="tab-pane">
+<section class="section" style="padding-top:120px;">
+  <div class="label">Product</div>
+  <h2>What TechSpec Scanner does.</h2>
+  <p class="sub">An iPhone app for AI-assisted identification of mechanical and industrial components. Capture, analyse, verify, and export in a structured workflow.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:48px;" class="product-grid">
+    <div>
+      <div class="label">Step 01</div>
+      <h3 style="margin-bottom:10px;">Take or upload component photos</h3>
+      <div class="prose">
+        <p>Guided photo slots walk you through the right angles — overview, markings, side profile, and scale reference. Or upload from your camera roll.</p>
+        <ul>
+          <li>Overview, markings, profile, and scale capture slots</li>
+          <li>Import from photo library or file storage</li>
+          <li>Works with dirty, worn, or partially visible parts</li>
+          <li>Multiple images per scan session</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="label">Step 02</div>
+      <h3 style="margin-bottom:10px;">Add measurements &amp; receive AI analysis</h3>
+      <div class="prose">
+        <p>Enter known measurements or context notes before submitting. Photos and context are sent to the backend for Gemini processing.</p>
+        <ul>
+          <li>Optional measurement and context fields</li>
+          <li>Backend-protected Gemini processing</li>
+          <li>Structured output: type, characteristics, visible evidence</li>
+          <li>Confidence score and uncertainty flags in every result</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="label">Step 03</div>
+      <h3 style="margin-bottom:10px;">Review evidence &amp; apply corrections</h3>
+      <div class="prose">
+        <p>Every result surfaces the visible evidence used, uncertainty flags, and recommended physical checks. Add manual corrections and save verified parts locally.</p>
+        <ul>
+          <li>Visible evidence summary with every result</li>
+          <li>Recommended checks and measurements</li>
+          <li>Technician note and manual override support</li>
+          <li>Save verified components to your known-parts library</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="label">Step 04</div>
+      <h3 style="margin-bottom:10px;">Export technical reports</h3>
+      <div class="prose">
+        <p>Generate structured reports with photos, scan data, AI analysis, and technician notes. Export locally, share with colleagues, or archive for maintenance records.</p>
+        <ul>
+          <li>PDF — human-readable report with photos</li>
+          <li>JSON — structured data for integration</li>
+          <li>CSV — spreadsheet-compatible parts list</li>
+          <li>Local backup file for offline archiving</li>
+          <li>English, German, French, and Spanish interface</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <style>.product-grid > div{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:28px;}@media(max-width:680px){.product-grid{grid-template-columns:1fr!important;}}</style>
+
+  <div class="warn" style="margin-top:48px;">
+    <svg class="warn-ico" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <p><strong>TechSpec Scanner does not replace professional engineering verification.</strong> Results may be incomplete or incorrect. Always verify before use. <a href="#" onclick="showTab('disclaimer');return false;">Read full AI disclaimer →</a></p>
+  </div>
+</section>
+</div>
+
+<!-- ============================================================ DISCLAIMER ============================================================ -->
+<div id="tab-disclaimer" class="tab-pane">
+<section class="section-sm" style="padding-top:120px;">
+  <div class="label">AI Disclaimer</div>
+  <h2>AI limitations &amp; safe use.</h2>
+  <p class="sub">TechSpec Scanner is an AI-assisted tool. This page explains what that means and how to use the app responsibly.</p>
+
+  <div class="warn" style="margin-bottom:36px;">
+    <svg class="warn-ico" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <p><strong>TechSpec Scanner provides AI-assisted suggestions, not certified engineering verification.</strong> Results can be incomplete, incorrect, or misleading. Always verify with physical measurements, visible markings, manufacturer documentation, and qualified technical judgment before acting on any result.</p>
+  </div>
+
+  <div class="prose">
+    <h3>What TechSpec Scanner is</h3>
+    <p>TechSpec Scanner assists with first-pass identification of mechanical and industrial components from photographs using Google Gemini. It is a starting point, not a conclusion.</p>
+
+    <h3>What TechSpec Scanner is not</h3>
+    <p>TechSpec Scanner is <strong>not</strong> a certified testing or measurement tool. It does not perform physical measurement, material analysis, or standardised inspection. It should <strong>not</strong> be the sole basis for:</p>
+    <ul>
+      <li>Safety-critical engineering or installation decisions</li>
+      <li>Purchasing or procurement without independent verification</li>
+      <li>Repair or maintenance where incorrect identification could cause harm</li>
+      <li>Engineering design or load-bearing applications</li>
+    </ul>
+
+    <h3>How the AI can be wrong</h3>
+    <ul>
+      <li><strong>Ambiguous appearance.</strong> Many components look similar — bearings, bushings, and washers can be indistinguishable without measurement.</li>
+      <li><strong>Photo quality.</strong> Poor lighting, angle, dirt, wear, or missing markings reduce accuracy significantly.</li>
+      <li><strong>Hallucination.</strong> Language models can produce plausible but incorrect part numbers or specifications.</li>
+      <li><strong>Missing context.</strong> Without physical dimensions or system context, the AI works from incomplete information.</li>
+      <li><strong>Non-standard parts.</strong> Components that deviate from standard specifications will not be identified correctly.</li>
+    </ul>
+
+    <h3>How to verify a result</h3>
+    <ul>
+      <li>Measure key dimensions with calibrated instruments (calipers, micrometer)</li>
+      <li>Read all visible stamped or printed markings</li>
+      <li>Cross-reference with manufacturer datasheets or standards tables</li>
+      <li>Consult a qualified engineer or technician where safety is involved</li>
+    </ul>
+
+    <h3>Confidence scores</h3>
+    <p>Confidence scores reflect the model's internal estimate — not an independently validated accuracy measurement. A high confidence score does not guarantee a correct identification. Uncertainty flags should always be acted on.</p>
+
+    <h3>No liability</h3>
+    <p>TechSpec Scanner and its developers accept no responsibility for decisions made on the basis of AI-generated identification results. The user is responsible for verifying all results before acting on them.</p>
+  </div>
+</section>
+</div>
+
+<!-- ============================================================ PRIVACY ============================================================ -->
+<div id="tab-privacy" class="tab-pane">
+<section class="section-sm" style="padding-top:120px;">
+  <div class="label">Privacy Policy</div>
+  <h2>How your data is handled.</h2>
+  <p class="sub">TechSpec Scanner is built on a local-first principle. Most data never leaves your device.</p>
+
+  <div class="prose">
+    <h3>Summary</h3>
+    <p>TechSpec Scanner stores scan history, known parts, projects, preferences, and test logs <strong>locally on your device</strong>. Data is only transmitted to external services when you actively request an AI analysis. The app does not use advertising, does not track behaviour, and does not require an account.</p>
+
+    <h3>Data stored on your device</h3>
+    <ul>
+      <li>Scan history and session records</li>
+      <li>Photos captured or uploaded during sessions</li>
+      <li>Technician notes and manual corrections</li>
+      <li>Known-parts library entries</li>
+      <li>Projects and grouped scan collections</li>
+      <li>App preferences and settings</li>
+      <li>Scan accuracy test logs</li>
+    </ul>
+    <p>You can delete all locally stored data at any time from within app settings.</p>
+
+    <h3>Data sent to the backend during analysis</h3>
+    <p>When you submit a scan for AI analysis, the following is sent to the TechSpec Scanner backend:</p>
+    <ul>
+      <li>Photos captured or uploaded for that scan session</li>
+      <li>Any measurements or context notes added before submission</li>
+      <li>An anonymous install identifier (usage counting only — not linked to your identity)</li>
+    </ul>
+
+    <h3>Google Gemini processing</h3>
+    <p>AI analysis uses the Google Gemini API. Photos and context are transmitted to Google's API infrastructure. Google's handling is governed by the <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google Privacy Policy</a>. The Gemini API key is stored only on the backend server — never in the app or on your device.</p>
+
+    <h3>What is not collected</h3>
+    <ul>
+      <li>Your name, email, or personal identity (unless you contact support)</li>
+      <li>Location data</li>
+      <li>Device contacts, calendar, or unrelated files</li>
+      <li>Advertising identifiers</li>
+      <li>Behavioural analytics or usage tracking</li>
+    </ul>
+    <p>There are no subscriptions, payment systems, or cloud accounts in the current version.</p>
+
+    <h3>Anonymous install identifier</h3>
+    <p>A random anonymous install ID is generated at first launch for usage counting only. It is not linked to your identity, device name, or Apple ID.</p>
+
+    <h3>Contact</h3>
+    <p>Questions about this policy? <a href="#" onclick="showTab('support');return false;">Contact us via the support page.</a></p>
+    <p>For ownership, permitted use, and licensing details, read the <a href="/support/legal.html">Legal Notice &amp; Licenses</a>.</p>
+
+    <p style="margin-top:32px;font-size:11px;color:var(--dim);">Last updated: 2026 · Beta version</p>
+  </div>
+</section>
+</div>
+
+<!-- ============================================================ SUPPORT ============================================================ -->
+<div id="tab-support" class="tab-pane">
+<section class="section" style="padding-top:120px;">
+  <div class="label">Support</div>
+  <h2>Get help.</h2>
+  <p class="sub">Contact the TechSpec Scanner team for bug reports, questions, beta access, or feedback.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:40px;" class="sup-top">
+    <div class="feat-card">
+      <div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+      <div class="feat-title">Support email</div>
+      <div class="feat-desc" style="margin-bottom:14px;">For bug reports, questions, and feedback.</div>
+      <a href="mailto:support@techspecscanner.com" class="btn btn-ghost" style="font-size:11px;padding:8px 14px;">support@techspecscanner.com</a>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+      <div class="feat-title">Join the beta</div>
+      <div class="feat-desc" style="margin-bottom:14px;">Request early access during the private beta period.</div>
+      <a href="#beta" onclick="showTab('home');setTimeout(()=>document.getElementById('beta').scrollIntoView({behavior:'smooth'}),80);return false;" class="btn btn-blue" style="font-size:11px;padding:8px 14px;">Request access</a>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg></div>
+      <div class="feat-title">Beta feedback</div>
+      <div class="feat-desc" style="margin-bottom:14px;">For wrong results, bugs, confusing screens, or feature ideas.</div>
+      <a href="/support/feedback.html" class="btn btn-ghost" style="font-size:11px;padding:8px 14px;">Send feedback</a>
+    </div>
+  </div>
+  <style>.sup-top{grid-template-columns:repeat(3,1fr)!important}.sup-top>div{height:auto;}@media(max-width:760px){.sup-top{grid-template-columns:1fr!important;}}</style>
+
+  <h3 style="margin-bottom:14px;font-size:15px;">Before contacting support</h3>
+  <p style="font-size:12.5px;color:var(--dim);margin-bottom:18px;line-height:1.75;max-width:520px;">Include the following where possible — it helps us resolve issues faster.</p>
+
+  <ul class="checklist" style="max-width:600px;">
+    <li><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span><strong style="color:var(--text);">App version</strong> — found in Settings → About within the app</span></li>
+    <li><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span><strong style="color:var(--text);">Device model and iOS version</strong> — e.g. iPhone 15 Pro, iOS 17.4</span></li>
+    <li><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span><strong style="color:var(--text);">What happened</strong> — describe the issue and what you expected</span></li>
+    <li><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span><strong style="color:var(--text);">Where it occurred</strong> — scanning, analysis, PDF export, install, or settings</span></li>
+  </ul>
+
+  <div class="warn" style="margin-bottom:36px;max-width:600px;">
+    <svg class="warn-ico" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <p><strong>Do not send</strong> API keys, passwords, unrelated personal documents, or sensitive files when contacting support.</p>
+  </div>
+
+  <h3 style="margin-bottom:18px;font-size:15px;">Send a message</h3>
+  <form class="s-form" onsubmit="supportSubmit(event)">
+    <div class="fg"><label for="s-email">Your email</label><input type="email" id="s-email" placeholder="your@email.com" required></div>
+    <div class="fg">
+      <label for="s-type">Category</label>
+      <select id="s-type">
+        <option value="">Select a category</option>
+        <option>Bug report</option>
+        <option>Beta access request</option>
+        <option>General question</option>
+        <option>Feedback or suggestion</option>
+        <option>Privacy question</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="fg"><label for="s-ver">App version (if applicable)</label><input type="text" id="s-ver" placeholder="e.g. 1.0.2 (beta)"></div>
+    <div class="fg"><label for="s-msg">Message</label><textarea id="s-msg" placeholder="Describe your issue or question..." required></textarea></div>
+    <button type="submit" class="btn btn-blue" style="width:100%;justify-content:center;">Send message</button>
+    <p style="font-size:11px;color:var(--dim);margin-top:10px;line-height:1.6;">This static website prepares an email draft. Add a backend form endpoint before using it for high-volume public support.</p>
+  </form>
+</section>
+</div>
+
+<!-- ============================================================ NOTES ============================================================ -->
+<div id="tab-notes" class="tab-pane">
+<section class="section-sm" style="padding-top:120px;">
+  <div class="label">Release Notes</div>
+  <h2>Status &amp; changelog.</h2>
+  <p class="sub">Current status: <strong style="color:var(--warn);">Private beta.</strong> Not yet publicly available on the App Store.</p>
+
+  <div class="feat-card" style="margin-bottom:36px;">
+    <div class="feat-title" style="margin-bottom:12px;">What is included in the current beta</div>
+    <ul style="list-style:none;padding:0;">
+      <li style="font-size:12.5px;color:var(--mid);padding:5px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;"><span style="color:var(--green);">✓</span> Guided photo capture (overview, markings, profile, scale)</li>
+      <li style="font-size:12.5px;color:var(--mid);padding:5px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;"><span style="color:var(--green);">✓</span> Photo upload from camera roll</li>
+      <li style="font-size:12.5px;color:var(--mid);padding:5px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;"><span style="color:var(--green);">✓</span> AI-assisted identification via backend Gemini processing</li>
+      <li style="font-size:12.5px;color:var(--mid);padding:5px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;"><span style="color:var(--green);">✓</span> Confidence scores and uncertainty flags</li>
+      <li style="font-size:12.5px;color:var(--mid);padding:5px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;"><span style="color:var(--green);">✓</span> Technician notes and manual corrections</li>
+      <li style="font-size:12.5px;color:var(--mid);padding:5px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;"><span style="color:var(--green);">✓</span> Local known-parts library</li>
+      <li style="font-size:12.5px;color:var(--mid);padding:5px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;"><span style="color:var(--green);">✓</span> PDF, JSON, CSV, and local backup export</li>
+      <li style="font-size:12.5px;color:var(--mid);padding:5px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;"><span style="color:var(--green);">✓</span> English, German, French, and Spanish interface</li>
+      <li style="font-size:12.5px;color:var(--mid);padding:5px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;"><span style="color:var(--dim);">✗</span> <span style="opacity:.5;">Cloud sync or account system</span></li>
+      <li style="font-size:12.5px;color:var(--mid);padding:5px 0;display:flex;gap:8px;"><span style="color:var(--dim);">✗</span> <span style="opacity:.5;">Subscriptions, payments, or advertising</span></li>
+    </ul>
+  </div>
+
+  <div class="release">
+    <div class="rel-ver">v0.9 <span class="rel-tag tag-beta">Private beta</span></div>
+    <div class="rel-date">2026 — Current</div>
+    <ul class="rel-list">
+      <li>Initial private beta release</li>
+      <li>Guided scan slots: overview, markings, side view, scale</li>
+      <li>Backend-protected Gemini AI analysis</li>
+      <li>Evidence-based results with confidence and uncertainty flags</li>
+      <li>Local known-parts library with technician note support</li>
+      <li>PDF, JSON, CSV, and backup export</li>
+      <li>English, German, French, and Spanish interface</li>
+      <li>Scan accuracy test logging</li>
+    </ul>
+  </div>
+
+  <div class="release" style="opacity:.45;">
+    <div class="rel-ver">v1.0 <span class="rel-tag tag-plan">Planned</span></div>
+    <div class="rel-date">TBA — App Store release</div>
+    <ul class="rel-list">
+      <li>Public App Store availability</li>
+      <li>Stability improvements from beta feedback</li>
+      <li>Final support and privacy URL confirmation</li>
+      <li>Additional component category coverage</li>
+    </ul>
+  </div>
+
+  <div class="warn" style="margin-top:8px;">
+    <svg class="warn-ico" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <p>During private beta, features may change without notice. AI results should always be verified. <a href="#" onclick="showTab('disclaimer');return false;">Read the full AI disclaimer →</a></p>
+  </div>
+</section>
+</div>
+
+<!-- FOOTER (shared) -->
+<footer>
+  <a href="#" class="nav-logo" onclick="showTab('home');return false;">
+    <div class="logo-hex"><img src="../Logo_TechSpec_Scanner.png" alt="" loading="lazy"></div>
+    <span class="logo-name">TechSpec <span>Scanner</span></span>
+  </a>
+  <ul class="foot-links">
+    <li><a href="#" onclick="showTab('product');return false;">Product</a></li>
+    <li><a href="#" onclick="showTab('disclaimer');return false;">AI Disclaimer</a></li>
+    <li><a href="#" onclick="showTab('privacy');return false;">Privacy</a></li>
+    <li><a href="#" onclick="showTab('support');return false;">Support</a></li>
+    <li><a href="/support/legal.html">Legal</a></li>
+    <li><a href="/support/feedback.html">Feedback</a></li>
+    <li><a href="#" onclick="showTab('notes');return false;">Release Notes</a></li>
+  </ul>
+  <div>
+    <div class="foot-status"><span class="s-dot"></span> Private beta · Coming soon</div>
+    <div class="foot-copy">© 2026 TechSpec Scanner</div>
+  </div>
+</footer>
+
+</div><!-- .wrap -->
+
+<!-- BACKGROUND CANVAS -->
+<script>
+(function(){
+  const c=document.getElementById('bg-canvas');
+  if(!c)return;
+  const ctx=c.getContext('2d');
+  let W,H,dots=[];
+  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;}
+  function buildDots(){
+    dots=[];
+    const sp=70,cols=Math.ceil(W/sp)+1,rows=Math.ceil(H/sp)+1;
+    for(let r=0;r<rows;r++)for(let cc=0;cc<cols;cc++){
+      if(Math.random()>.68)continue;
+      dots.push({x:cc*sp+(Math.random()-.5)*14,y:r*sp+(Math.random()-.5)*14,vx:(Math.random()-.5)*.07,vy:(Math.random()-.5)*.07,r:Math.random()*.9+.35});
+    }
+  }
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    // grid
+    ctx.strokeStyle='rgba(60,120,190,0.04)';ctx.lineWidth=1;ctx.beginPath();
+    for(let x=0;x<W;x+=70){ctx.moveTo(x,0);ctx.lineTo(x,H);}
+    for(let y=0;y<H;y+=70){ctx.moveTo(0,y);ctx.lineTo(W,y);}
+    ctx.stroke();
+    // glow
+    const g=ctx.createRadialGradient(W*.5,H*.25,0,W*.5,H*.25,W*.65);
+    g.addColorStop(0,'rgba(20,50,90,0.18)');g.addColorStop(1,'rgba(8,12,16,0)');
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    // dots + lines
+    for(let i=0;i<dots.length;i++){
+      const d=dots[i];d.x+=d.vx;d.y+=d.vy;
+      if(d.x<-30)d.x=W+30;if(d.x>W+30)d.x=-30;
+      if(d.y<-30)d.y=H+30;if(d.y>H+30)d.y=-30;
+      for(let j=i+1;j<dots.length;j++){
+        const e=dots[j],dx=d.x-e.x,dy=d.y-e.y,dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<100){
+          ctx.strokeStyle=`rgba(74,158,221,${(1-dist/100)*.1})`;ctx.lineWidth=.6;
+          ctx.beginPath();ctx.moveTo(d.x,d.y);ctx.lineTo(e.x,e.y);ctx.stroke();
+        }
+      }
+      ctx.fillStyle='rgba(74,158,221,0.3)';ctx.beginPath();ctx.arc(d.x,d.y,d.r,0,Math.PI*2);ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize',()=>{resize();buildDots();});
+  resize();buildDots();draw();
+})();
+
+// TABS
+function showTab(name){
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// BETA FORM
+function betaSubmit(e){
+  e.preventDefault();
+  const email=e.target.querySelector('input').value.trim();
+  const subject=encodeURIComponent('TechSpec Scanner beta access request');
+  const body=encodeURIComponent(`Please add me to the TechSpec Scanner beta list.\n\nEmail: ${email}`);
+  document.getElementById('beta-msg').textContent='Opening an email draft for your beta request.';
+  document.getElementById('beta-msg').style.color='var(--green)';
+  window.location.href=`mailto:support@techspecscanner.com?subject=${subject}&body=${body}`;
+  e.target.querySelector('input').value='';
+}
+
+// SUPPORT FORM
+function supportSubmit(e){
+  e.preventDefault();
+  const email=document.getElementById('s-email').value.trim();
+  const category=document.getElementById('s-type').value || 'General';
+  const version=document.getElementById('s-ver').value.trim() || 'Not provided';
+  const message=document.getElementById('s-msg').value.trim();
+  const subject=encodeURIComponent(`TechSpec Scanner support: ${category}`);
+  const body=encodeURIComponent(`From: ${email}\nCategory: ${category}\nApp version: ${version}\n\nMessage:\n${message}`);
+  window.location.href=`mailto:support@techspecscanner.com?subject=${subject}&body=${body}`;
+  e.target.querySelector('button').textContent='Email draft opened';
+}
+</script>
+</body>
+</html>

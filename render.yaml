@@ -1,0 +1,41 @@
+services:
+  - type: web
+    name: techspec-scanner-beta
+    runtime: node
+    plan: starter
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 24
+      - key: APP_MODE
+        value: production
+      - key: PUBLIC_BASE_URL
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: BETA_ACCESS_CODE
+        sync: false
+      - key: GEMINI_FAST_MODEL
+        value: gemini-2.5-flash-lite
+      - key: GEMINI_STRONG_MODEL
+        value: gemini-2.5-flash
+      - key: DAILY_SCAN_LIMIT
+        value: 80
+      - key: MONTHLY_SCAN_LIMIT
+        value: 800
+      - key: INSTALL_DAILY_SCAN_LIMIT
+        value: 25
+      - key: INSTALL_MONTHLY_SCAN_LIMIT
+        value: 250
+      - key: RATE_LIMIT_WINDOW_MS
+        value: 60000
+      - key: RATE_LIMIT_MAX_REQUESTS
+        value: 12
+      - key: MAX_ANALYZE_BODY_BYTES
+        value: 14680064
+      - key: MAX_FEEDBACK_BODY_BYTES
+        value: 131072
+      - key: MAX_IMAGE_BASE64_CHARS
+        value: 6500000

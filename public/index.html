@@ -1,0 +1,870 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#071d38">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="TechSpec">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>TechSpec Scanner</title>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="icon" href="/icons/icon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <link rel="stylesheet" href="/styles.css?v=20260529-5">
+  </head>
+  <body>
+    <div id="appSplash" class="app-splash" aria-label="TechSpec Scanner loading">
+      <div class="splash-card">
+        <div class="brand-loader" aria-hidden="true">
+          <img src="/Logo_TechSpec_Scanner.png" alt="">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <strong>TechSpec Scanner</strong>
+      </div>
+    </div>
+
+    <div id="safetyDialog" class="safety-dialog is-hidden" role="dialog" aria-modal="true" aria-labelledby="safetyDialogTitle">
+      <div class="safety-card">
+        <div class="safety-mark" aria-hidden="true"><img src="/Logo_TechSpec_Scanner.png" alt=""></div>
+        <div>
+          <p class="eyebrow" data-i18n="safetyEyebrow">Before scanning</p>
+          <h1 id="safetyDialogTitle" data-i18n="safetyTitle">AI and privacy acknowledgement</h1>
+          <p data-i18n="safetyIntro">TechSpec Scanner is an AI-assisted tool. Review these points before using it with real components.</p>
+        </div>
+        <ul class="safety-list">
+          <li data-i18n="safetyAi">AI results can be incomplete or incorrect and must be verified with measurements, markings, manufacturer documentation, and engineering judgment.</li>
+          <li data-i18n="safetyPrivacy">Photos and scan context you submit are sent through the backend to Google Gemini for analysis.</li>
+          <li data-i18n="safetyNoSoleUse">Do not use the result as the sole basis for safety-critical, purchasing, repair, or design decisions.</li>
+          <li data-i18n="safetySecrets">Do not submit API keys, passwords, private documents, or unrelated personal data.</li>
+        </ul>
+        <label class="safety-check">
+          <input id="safetyAgreeInput" type="checkbox">
+          <span data-i18n="safetyAgree">I understand and will verify AI results before use.</span>
+        </label>
+        <div class="safety-actions">
+          <button id="reviewPrivacyFromSafetyBtn" class="secondary-btn" type="button" data-i18n="privacyPolicy">Privacy policy</button>
+          <button id="acceptSafetyBtn" class="primary-btn compact" type="button" disabled data-i18n="safetyAccept">Acknowledge</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toastBox" class="toast-box is-hidden" role="status" aria-live="polite"></div>
+
+    <div class="app-frame">
+      <nav class="app-nav" aria-label="App navigation">
+        <div class="nav-brand">
+          <div class="mark" aria-hidden="true"><img src="/Logo_TechSpec_Scanner.png" alt=""></div>
+          <span data-i18n="appName">TechSpec Scanner</span>
+        </div>
+        <button class="nav-btn is-active" type="button" data-page="scan" data-i18n="navScan">Scan</button>
+        <button class="nav-btn" type="button" data-page="library" data-i18n="navLibrary">Library</button>
+        <button class="nav-btn" type="button" data-page="reports" data-i18n="navReports">Reports</button>
+        <button class="nav-btn dev-only" type="button" data-page="testing" data-i18n="navTesting">Testing</button>
+        <button class="nav-btn" type="button" data-page="settings" data-i18n="navSettings">Settings</button>
+      </nav>
+
+      <div class="app-content">
+        <section id="page-scan" class="app-page is-active">
+          <main class="app-shell">
+      <section class="capture-panel">
+        <div class="brand-row">
+          <div class="mark" aria-hidden="true"><img src="/Logo_TechSpec_Scanner.png" alt=""></div>
+          <div>
+            <h1 data-i18n="appName">TechSpec Scanner</h1>
+            <p data-i18n="appSubtitle">Identify mechanical parts from an iPhone camera photo.</p>
+          </div>
+        </div>
+
+        <section class="guided-scan">
+          <div class="section-title">
+            <h2 data-i18n="guidedScan">Guided scan</h2>
+            <p data-i18n="guidedScanHelp">Add the views that are available. Overview is enough to start.</p>
+          </div>
+
+          <div class="scan-slots">
+            <label class="photo-slot" data-slot-card="overview" tabindex="0">
+              <input class="slot-input" type="file" accept="image/*" capture="environment" data-slot="overview" data-label="Overview">
+              <span class="slot-icon" aria-hidden="true"></span>
+              <strong data-i18n="slotOverview">Overview</strong>
+              <small data-i18n="slotOverviewHelp">Whole component</small>
+            </label>
+            <label class="photo-slot" data-slot-card="markings" tabindex="0">
+              <input class="slot-input" type="file" accept="image/*" capture="environment" data-slot="markings" data-label="Markings">
+              <span class="slot-icon" aria-hidden="true"></span>
+              <strong data-i18n="slotMarkings">Markings</strong>
+              <small data-i18n="slotMarkingsHelp">Text, logo, code</small>
+            </label>
+            <label class="photo-slot" data-slot-card="side" tabindex="0">
+              <input class="slot-input" type="file" accept="image/*" capture="environment" data-slot="side" data-label="Side view">
+              <span class="slot-icon" aria-hidden="true"></span>
+              <strong data-i18n="slotSide">Side view</strong>
+              <small data-i18n="slotSideHelp">Profile and width</small>
+            </label>
+            <label class="photo-slot" data-slot-card="scale" tabindex="0">
+              <input class="slot-input" type="file" accept="image/*" capture="environment" data-slot="scale" data-label="Scale">
+              <span class="slot-icon" aria-hidden="true"></span>
+              <strong data-i18n="slotScale">Scale</strong>
+              <small data-i18n="slotScaleHelp">Ruler or reference</small>
+            </label>
+          </div>
+          <p class="paste-help" data-i18n="pasteHelp">Tip: copy an image, click a scan slot, then press Ctrl+V to paste it here.</p>
+          <div class="scan-quality" id="scanQuality">
+            <div>
+              <strong id="scanQualityLabel">Needs photo</strong>
+              <span id="scanQualityText">Add an overview photo to start the scan.</span>
+            </div>
+            <div id="scanQualityList" class="quality-list"></div>
+          </div>
+
+          <section class="first-scan-guide">
+            <div>
+              <strong data-i18n="firstScanGuideTitle">Best first scan</strong>
+              <p data-i18n="firstScanGuideHelp">Start with one sharp overview, then add markings and a ruler if they exist.</p>
+            </div>
+            <ol>
+              <li data-i18n="firstScanGuideOne">Fill the overview slot.</li>
+              <li data-i18n="firstScanGuideTwo">Add markings or labels.</li>
+              <li data-i18n="firstScanGuideThree">Add a scale for dimensions.</li>
+            </ol>
+          </section>
+
+          <details class="capture-guide">
+            <summary data-i18n="captureGuideTitle">Photo capture guide</summary>
+            <div class="guide-grid">
+              <span data-i18n="captureGuideLight">Use bright, even light.</span>
+              <span data-i18n="captureGuideBackground">Place the part on a plain background.</span>
+              <span data-i18n="captureGuideMarkings">Take a sharp close-up of markings.</span>
+              <span data-i18n="captureGuideScale">Add a ruler or known reference when size matters.</span>
+            </div>
+          </details>
+        </section>
+
+        <div id="previewWrap" class="preview-wrap is-hidden">
+          <div id="previewGrid" class="preview-grid"></div>
+        </div>
+
+        <label class="select-label" for="scanMode" data-i18n="aiFocus">AI focus</label>
+        <select id="scanMode">
+          <option value="auto" selected data-i18n="modeAuto">Auto detect</option>
+          <option value="general" data-i18n="modeGeneral">General component</option>
+          <option value="fastener" data-i18n="modeFastener">Bolt / screw / nut</option>
+          <option value="bearing" data-i18n="modeBearing">Bearing</option>
+          <option value="gear" data-i18n="modeGear">Gear / sprocket / pulley</option>
+          <option value="shaft" data-i18n="modeShaft">Shaft / coupling</option>
+          <option value="conveyor" data-i18n="modeConveyor">Conveyor / roller part</option>
+          <option value="fluid" data-i18n="modeFluid">Hydraulic / pneumatic part</option>
+          <option value="sensor" data-i18n="modeSensor">Sensor / actuator</option>
+          <option value="seal" data-i18n="modeSeal">Seal / gasket / O-ring</option>
+          <option value="spring" data-i18n="modeSpring">Spring</option>
+          <option value="bracket" data-i18n="modeBracket">Bracket / mounting part</option>
+          <option value="linear" data-i18n="modeLinear">Linear guide / rail</option>
+          <option value="cutting" data-i18n="modeCutting">Cutting tool / insert</option>
+          <option value="belt" data-i18n="modeBelt">Belt / chain drive</option>
+          <option value="valve" data-i18n="modeValve">Valve / fitting</option>
+          <option value="motor" data-i18n="modeMotor">Motor / gearbox</option>
+          <option value="profile" data-i18n="modeProfile">Profile / extrusion</option>
+        </select>
+
+        <section class="project-select-panel">
+          <label class="select-label" for="projectSelect" data-i18n="project">Project</label>
+          <select id="projectSelect"></select>
+          <div class="inline-create">
+            <input id="newProjectName" type="text" placeholder="New project name" data-i18n-placeholder="newProjectName">
+            <button id="addProjectBtn" class="secondary-btn" type="button" data-i18n="add">Add</button>
+          </div>
+        </section>
+
+        <details class="advanced-scan-panel">
+          <summary data-i18n="optionalScanDetails">Optional scan details</summary>
+          <fieldset class="measurement-field">
+            <legend data-i18n="measurements">Measurements</legend>
+            <p id="measurementHint" class="measurement-hint">Choose an AI focus to highlight useful measurements.</p>
+            <div class="measurement-grid">
+              <label data-measure-label="lengthMm">Length mm<input data-measure="lengthMm" type="number" inputmode="decimal" step="0.01"></label>
+              <label data-measure-label="widthMm">Width mm<input data-measure="widthMm" type="number" inputmode="decimal" step="0.01"></label>
+              <label data-measure-label="diameterMm">Diameter mm<input data-measure="diameterMm" type="number" inputmode="decimal" step="0.01"></label>
+              <label data-measure-label="boreMm">Bore mm<input data-measure="boreMm" type="number" inputmode="decimal" step="0.01"></label>
+              <label data-measure-label="threadPitchMm">Thread pitch mm<input data-measure="threadPitchMm" type="number" inputmode="decimal" step="0.01"></label>
+              <label data-measure-label="weightG">Weight g<input data-measure="weightG" type="number" inputmode="decimal" step="0.01"></label>
+              <label data-measure-label="materialConfirmed">Material confirmed<input data-measure="materialConfirmed" type="text" placeholder="e.g. steel" data-i18n-placeholder="measureMaterialPlaceholder"></label>
+              <label data-measure-label="measuredBy">Measured by<input data-measure="measuredBy" type="text" placeholder="name" data-i18n-placeholder="measureMeasuredByPlaceholder"></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="checklist-field">
+            <legend data-i18n="photoChecklist">Photo checklist</legend>
+            <div class="checklist-options">
+              <label><input type="checkbox" value="overview photo"><span data-i18n="slotOverview">Overview</span></label>
+              <label><input type="checkbox" value="markings close-up"><span data-i18n="slotMarkings">Markings</span></label>
+              <label><input type="checkbox" value="side view"><span data-i18n="slotSide">Side view</span></label>
+              <label><input type="checkbox" value="scale or ruler reference"><span data-i18n="slotScale">Scale</span></label>
+            </div>
+          </fieldset>
+
+          <label class="notes-label" for="notes" data-i18n="contextNotes">Context notes</label>
+          <textarea id="notes" rows="3" placeholder="Example: part from roller conveyor, about 40 mm wide, metal, markings on side..." data-i18n-placeholder="contextNotesPlaceholder"></textarea>
+        </details>
+
+        <button id="analyzeBtn" class="primary-btn" type="button" disabled>
+          <span data-i18n="analyzeComponent">Analyze component</span>
+        </button>
+        <button id="demoScanBtn" class="secondary-btn full-width dev-only" type="button" data-i18n="loadDemoScan">Load screenshot demo</button>
+
+        <section id="databasePanel" class="history-panel is-hidden">
+          <div class="history-header">
+            <h2 data-i18n="knownParts">Known parts</h2>
+            <button id="clearDatabaseBtn" class="text-btn" type="button" data-i18n="clear">Clear</button>
+          </div>
+          <div id="databaseList" class="history-list"></div>
+        </section>
+
+        <section id="historyPanel" class="history-panel is-hidden">
+          <div class="history-header">
+            <h2 data-i18n="recentScans">Recent scans</h2>
+            <button id="clearHistoryBtn" class="text-btn" type="button" data-i18n="clear">Clear</button>
+          </div>
+          <div id="historyList" class="history-list"></div>
+        </section>
+      </section>
+
+      <section class="results-panel" aria-live="polite">
+        <div id="emptyState" class="empty-state">
+          <h2 data-i18n="readyFirstScan">Ready for first scan</h2>
+          <p data-i18n="readyFirstScanHelp">After analysis, the result appears here with confidence, visible clues, and the next best photo to take.</p>
+        </div>
+
+        <div id="loadingState" class="loading-state is-hidden">
+          <div class="brand-loader" aria-hidden="true">
+            <img src="/Logo_TechSpec_Scanner.png" alt="">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <p data-i18n="inspectingImage">Inspecting image...</p>
+        </div>
+
+        <article id="resultCard" class="result-card is-hidden">
+          <div class="result-header">
+            <div>
+              <span id="resultSource" class="source-pill">Demo</span>
+              <h2 id="componentName"></h2>
+              <p id="category"></p>
+            </div>
+            <div class="confidence">
+              <span id="confidenceValue">0%</span>
+              <small data-i18n="confidence">confidence</small>
+            </div>
+          </div>
+
+          <section id="confidencePanel" class="confidence-panel">
+            <div>
+              <strong id="confidenceLabel">Confidence explanation</strong>
+              <p id="confidenceText"></p>
+            </div>
+            <ul id="confidenceReasons"></ul>
+          </section>
+
+          <div class="result-actions primary-result-actions" aria-label="Main result actions">
+            <button id="copyResultBtn" class="secondary-btn" type="button" data-i18n="copyResult">Copy result</button>
+            <button id="shareResultBtn" class="secondary-btn" type="button" data-i18n="shareResult">Share result</button>
+            <button id="exportPdfBtn" class="secondary-btn" type="button" data-i18n="exportPdf">Export PDF</button>
+          </div>
+
+          <details class="review-save-panel">
+            <summary>
+              <span data-i18n="reviewSave">Review & save</span>
+              <small data-i18n="reviewSaveHelp">Verify, correct, add notes, and save to the library.</small>
+            </summary>
+
+            <div class="verification-row">
+              <label for="verificationStatus" data-i18n="verification">Verification</label>
+              <select id="verificationStatus">
+                <option value="unverified" selected data-i18n="unverified">Unverified</option>
+                <option value="needs-measurement" data-i18n="needsMeasurement">Needs measurement</option>
+                <option value="verified" data-i18n="verified">Verified</option>
+              </select>
+            </div>
+
+            <section class="verification-checklist">
+              <div class="section-title">
+                <h2 data-i18n="verificationChecklist">Verification checklist</h2>
+                <p data-i18n="verificationChecklistHelp">Confirm the evidence before saving the part as known.</p>
+              </div>
+              <div class="checklist-options verification-options">
+                <label><input type="checkbox" data-verify="markings"><span data-i18n="verifyMarkings">Markings checked</span></label>
+                <label><input type="checkbox" data-verify="dimensions"><span data-i18n="verifyDimensions">Dimensions checked</span></label>
+                <label><input type="checkbox" data-verify="material"><span data-i18n="verifyMaterial">Material checked</span></label>
+                <label><input type="checkbox" data-verify="partNumber"><span data-i18n="verifyPartNumber">Part number checked</span></label>
+              </div>
+            </section>
+
+            <details class="correction-panel">
+              <summary data-i18n="correctResult">Correct result</summary>
+              <div class="correction-grid">
+                <label data-i18n-label="correctName">Correct name<input id="correctName" type="text" data-i18n-placeholder="correctNamePlaceholder"></label>
+                <label data-i18n-label="correctCategory">Correct category<input id="correctCategory" type="text" data-i18n-placeholder="correctCategoryPlaceholder"></label>
+                <label data-i18n-label="correctPartNumber">Confirmed part number<input id="correctPartNumber" type="text" data-i18n-placeholder="correctPartNumberPlaceholder"></label>
+                <label data-i18n-label="correctMaterial">Confirmed material<input id="correctMaterial" type="text" data-i18n-placeholder="correctMaterialPlaceholder"></label>
+              </div>
+              <button id="applyCorrectionBtn" class="secondary-btn" type="button" data-i18n="applyCorrection">Apply correction</button>
+            </details>
+
+            <section class="evaluation-panel dev-only">
+              <div class="section-title">
+                <h2 data-i18n="evaluationTitle">Scan evaluation</h2>
+                <p data-i18n="evaluationHelp">Use real-world checks to track where the scanner performs well or needs tuning.</p>
+              </div>
+              <div class="evaluation-grid">
+                <label for="evaluationVerdict">
+                  <span data-i18n="evaluationVerdict">Result quality</span>
+                  <select id="evaluationVerdict">
+                    <option value="" data-i18n="evaluationNotEvaluated">Not evaluated</option>
+                    <option value="correct" data-i18n="evaluationCorrect">Correct</option>
+                    <option value="partly" data-i18n="evaluationPartly">Partly correct</option>
+                    <option value="wrong" data-i18n="evaluationWrong">Wrong</option>
+                  </select>
+                </label>
+                <label for="evaluationCorrectName">
+                  <span data-i18n="evaluationCorrectName">True component name</span>
+                  <input id="evaluationCorrectName" type="text" data-i18n-placeholder="evaluationCorrectNamePlaceholder" placeholder="e.g. M8 hex bolt">
+                </label>
+              </div>
+              <fieldset class="evaluation-reasons">
+                <legend data-i18n="evaluationReasons">Reason tags</legend>
+                <div class="checklist-options evaluation-reason-options">
+                  <label><input type="checkbox" data-eval-reason="bad-lighting"><span data-i18n="reasonBadLighting">Bad lighting</span></label>
+                  <label><input type="checkbox" data-eval-reason="blurry"><span data-i18n="reasonBlurry">Blurry photo</span></label>
+                  <label><input type="checkbox" data-eval-reason="markings"><span data-i18n="reasonMarkings">Unreadable markings</span></label>
+                  <label><input type="checkbox" data-eval-reason="scale"><span data-i18n="reasonScale">Missing scale</span></label>
+                  <label><input type="checkbox" data-eval-reason="angle"><span data-i18n="reasonAngle">Wrong angle</span></label>
+                  <label><input type="checkbox" data-eval-reason="similar-part"><span data-i18n="reasonSimilarPart">Similar part confused</span></label>
+                </div>
+              </fieldset>
+              <label class="notes-label compact" for="evaluationNotes" data-i18n="evaluationNotes">Evaluation notes</label>
+              <textarea id="evaluationNotes" rows="2" data-i18n-placeholder="evaluationNotesPlaceholder" placeholder="What was right, wrong, or unclear?"></textarea>
+              <button id="saveEvaluationBtn" class="secondary-btn" type="button" data-i18n="saveEvaluation">Save evaluation</button>
+            </section>
+
+            <label class="notes-label result-note-label" for="resultNotes" data-i18n="technicianNotes">Technician notes</label>
+            <textarea id="resultNotes" rows="2" placeholder="Add manual notes, measurements, confirmed part number, or correction..." data-i18n-placeholder="technicianNotesPlaceholder"></textarea>
+
+            <div class="review-actions">
+              <button id="saveKnownPartBtn" class="secondary-btn" type="button" data-i18n="saveKnownPart">Save known part</button>
+              <button id="editResultBtn" class="secondary-btn" type="button" data-i18n="editResult">Edit result</button>
+              <button id="saveEditsBtn" class="secondary-btn is-hidden" type="button" data-i18n="saveEdits">Save edits</button>
+            </div>
+
+            <section id="matchesPanel" class="matches-panel is-hidden">
+              <div class="section-title">
+                <h2 data-i18n="possibleMatches">Possible database matches</h2>
+                <p data-i18n="possibleMatchesHelp">Based on saved known parts in this browser.</p>
+              </div>
+              <div id="matchesList" class="match-list"></div>
+            </section>
+          </details>
+
+          <details class="advanced-result-actions">
+            <summary>
+              <span data-i18n="moreActions">More actions</span>
+              <small data-i18n="moreActionsHelp">Developer and structured export options.</small>
+            </summary>
+            <div class="result-actions">
+              <button id="downloadResultBtn" class="secondary-btn" type="button" data-i18n="downloadJson">Download JSON</button>
+            </div>
+          </details>
+
+          <div class="result-grid">
+            <section>
+              <h3 data-i18n="likelyFunction">Likely function</h3>
+              <p id="likelyFunction"></p>
+            </section>
+            <section>
+              <h3 data-i18n="material">Material</h3>
+              <p id="possibleMaterial"></p>
+            </section>
+            <section>
+              <h3 data-i18n="partNumber">Part number</h3>
+              <p id="partNumber"></p>
+            </section>
+            <section>
+              <h3 data-i18n="markings">Markings</h3>
+              <p id="markingsText"></p>
+            </section>
+            <section>
+              <h3 data-i18n="detectedFamily">Detected family</h3>
+              <p id="componentFamily"></p>
+            </section>
+            <section>
+              <h3 data-i18n="nextPhoto">Next photo</h3>
+              <p id="nextPhoto"></p>
+            </section>
+          </div>
+
+          <section class="list-section">
+            <h3 data-i18n="evidenceSummary">Evidence summary</h3>
+            <p id="evidenceSummary"></p>
+          </section>
+
+          <details class="list-section" open>
+            <summary data-i18n="visibleFeatures">Visible features</summary>
+            <ul id="featuresList"></ul>
+          </details>
+
+          <details class="list-section">
+            <summary data-i18n="measurementClues">Measurement clues</summary>
+            <ul id="measurementList"></ul>
+          </details>
+
+          <details class="list-section">
+            <summary data-i18n="likelyStandards">Likely standards</summary>
+            <ul id="standardsList"></ul>
+          </details>
+
+          <details class="list-section">
+            <summary data-i18n="alternatives">Alternatives</summary>
+            <ul id="alternativesList"></ul>
+          </details>
+
+          <details class="list-section">
+            <summary data-i18n="recommendedChecks">Recommended checks</summary>
+            <ul id="checksList"></ul>
+          </details>
+
+          <details class="list-section warnings" open>
+            <summary data-i18n="uncertainty">Uncertainty</summary>
+            <ul id="warningsList"></ul>
+          </details>
+
+          <details class="list-section warnings">
+            <summary data-i18n="missingEvidence">Missing evidence</summary>
+            <ul id="missingList"></ul>
+          </details>
+        </article>
+
+        <div id="errorBox" class="error-box is-hidden"></div>
+      </section>
+          </main>
+        </section>
+
+        <section id="page-library" class="app-page">
+          <div class="page-panel">
+            <div class="page-header">
+              <div>
+                <h1 data-i18n="libraryTitle">Known Parts Library</h1>
+                <p data-i18n="libraryHelp">Saved and verified components stay in this browser for matching future scans.</p>
+              </div>
+              <div class="page-actions">
+                <button id="exportDatabaseBtn" class="secondary-btn" type="button" data-i18n="exportLibrary">Export library</button>
+                <label class="secondary-btn file-action" for="importDatabaseInput" data-i18n="importLibrary">Import library</label>
+                <input id="importDatabaseInput" type="file" accept="application/json">
+              </div>
+            </div>
+            <div id="libraryList" class="management-list"></div>
+          </div>
+        </section>
+
+        <section id="page-reports" class="app-page">
+          <div class="page-panel">
+            <div class="page-header">
+              <div>
+                <h1 data-i18n="reportsTitle">Reports</h1>
+                <p data-i18n="reportsHelp">Reopen recent scans and export reports.</p>
+              </div>
+              <button id="clearReportsBtn" class="secondary-btn" type="button" data-i18n="clearHistory">Clear history</button>
+            </div>
+            <div id="reportsEvaluationSummary" class="report-quality-summary"></div>
+            <div id="reportsList" class="management-list"></div>
+          </div>
+        </section>
+
+        <section id="page-report-preview" class="app-page">
+          <div class="page-panel report-preview-panel">
+            <div class="report-preview-toolbar no-print">
+              <button id="reportDoneBtn" class="secondary-btn" type="button" data-i18n="done">Done</button>
+              <span data-i18n="reportPreviewTip">Print opens a system dialog. When it closes, the app returns to the scan page.</span>
+              <button id="printReportBtn" class="primary-btn compact" type="button" data-i18n="printSavePdf">Print / Save PDF</button>
+            </div>
+            <div class="page-header">
+              <div>
+                <h1 data-i18n="reportPreviewTitle">Report preview</h1>
+                <p data-i18n="reportPreviewHelp">Review the report, then print or save it as a PDF.</p>
+              </div>
+              <div class="page-actions no-print">
+                <button id="backFromReportBtn" class="secondary-btn" type="button" data-i18n="backToApp">Back to app</button>
+              </div>
+            </div>
+            <div id="reportPreview" class="report-preview"></div>
+          </div>
+        </section>
+
+        <section id="page-support-app" class="app-page">
+          <div class="page-panel info-page-panel">
+            <div class="page-header">
+              <div>
+                <h1 data-i18n="supportPage">Support</h1>
+                <p data-i18n="supportAppHelp">Help and contact information for TechSpec Scanner.</p>
+              </div>
+              <button id="backFromSupportBtn" class="secondary-btn" type="button" data-i18n="backToSettings">Back to settings</button>
+            </div>
+            <div class="info-grid">
+              <section>
+                <h2 data-i18n="supportContact">Contact</h2>
+                <p data-i18n="supportContactHelp">For help, feedback, or privacy questions, use the support contact configured for the public support page.</p>
+                <p class="inline-url">/support/</p>
+              </section>
+              <section>
+                <h2 data-i18n="betaFeedback">Beta feedback</h2>
+                <p data-i18n="betaFeedbackHelp">Send structured feedback about wrong results, bugs, confusing screens, or feature wishes.</p>
+                <p><a class="secondary-btn" href="/support/feedback.html">/support/feedback.html</a></p>
+              </section>
+              <section>
+                <h2 data-i18n="supportIncludeTitle">When contacting support</h2>
+                <ul>
+                  <li data-i18n="supportIncludeVersion">Include your app version.</li>
+                  <li data-i18n="supportIncludeDevice">Include your device model.</li>
+                  <li data-i18n="supportIncludeIssue">Describe whether the issue happened during scanning, analysis, report export, or installation.</li>
+                  <li data-i18n="supportIncludeSecret">Do not send private API keys, passwords, or unrelated personal documents.</li>
+                </ul>
+              </section>
+              <section class="info-wide notice">
+                <h2 data-i18n="aiDisclaimerTitle">AI result disclaimer</h2>
+                <p data-i18n="aiDisclaimerText">AI results can be incomplete or incorrect. Verify with physical measurements, markings, manufacturer documentation, and engineering judgment before use.</p>
+              </section>
+            </div>
+          </div>
+        </section>
+
+        <section id="page-privacy-app" class="app-page">
+          <div class="page-panel info-page-panel">
+            <div class="page-header">
+              <div>
+                <h1 data-i18n="privacyPolicy">Privacy policy</h1>
+                <p data-i18n="privacyAppHelp">Summary of the current privacy behavior for the local-first scanner.</p>
+              </div>
+              <button id="backFromPrivacyBtn" class="secondary-btn" type="button" data-i18n="backToSettings">Back to settings</button>
+            </div>
+            <div class="info-grid">
+              <section>
+                <h2 data-i18n="privacyDataTitle">Data processed</h2>
+                <ul>
+                  <li data-i18n="privacyDataPhotos">Component photos you choose to submit for analysis.</li>
+                  <li data-i18n="privacyDataNotes">Notes, measurements, projects, corrections, and evaluation labels you enter.</li>
+                  <li data-i18n="privacyDataUsage">Anonymous install ID, usage counters, and server-side scan limits.</li>
+                  <li data-i18n="privacyDataLocal">Local app settings, scan history, known parts, and testing entries stored in this browser.</li>
+                </ul>
+              </section>
+              <section>
+                <h2 data-i18n="privacyAiTitle">AI processing</h2>
+                <p data-i18n="privacyAiText">When AI analysis is enabled, submitted component images and scan context are sent through the backend to Google Gemini for processing.</p>
+              </section>
+              <section>
+                <h2 data-i18n="privacyLocalTitle">Local-first storage</h2>
+                <p data-i18n="privacyLocalText">Scan history, known parts, projects, test logs, language, and theme remain in local browser storage unless you export or delete them.</p>
+              </section>
+              <section class="info-wide notice">
+                <h2 data-i18n="privacyFullTitle">Full public policy</h2>
+                <p data-i18n="privacyFullText">The public privacy page is still available for publishing and App Store review.</p>
+                <p class="inline-url">/support/privacy.html</p>
+              </section>
+            </div>
+          </div>
+        </section>
+
+        <section id="page-testing" class="app-page dev-only">
+          <div class="page-panel">
+            <div class="page-header">
+              <div>
+                <h1 data-i18n="testingTitle">Testing</h1>
+                <p data-i18n="testingHelp">Track scan accuracy from real components and export the test log for later improvement work.</p>
+              </div>
+              <div class="page-actions">
+                <button id="exportTestLogBtn" class="secondary-btn" type="button" data-i18n="exportTestLog">Export test log</button>
+                <button id="exportTestCsvBtn" class="secondary-btn" type="button" data-i18n="exportTestCsv">Export CSV</button>
+                <button id="clearTestLogBtn" class="secondary-btn danger" type="button" data-i18n="clearTestLog">Clear test log</button>
+              </div>
+            </div>
+            <div class="stats-grid">
+              <section class="stat-card">
+                <span data-i18n="testTotal">Tests</span>
+                <strong id="testTotal">0</strong>
+              </section>
+              <section class="stat-card">
+                <span data-i18n="testCorrect">Correct</span>
+                <strong id="testCorrect">0</strong>
+              </section>
+              <section class="stat-card">
+                <span data-i18n="testPartly">Partly correct</span>
+                <strong id="testPartly">0</strong>
+              </section>
+              <section class="stat-card">
+                <span data-i18n="testWrong">Wrong</span>
+                <strong id="testWrong">0</strong>
+              </section>
+              <section class="stat-card">
+                <span data-i18n="testAccuracy">Strict accuracy</span>
+                <strong id="testAccuracy">0%</strong>
+              </section>
+            </div>
+            <div id="testLogList" class="management-list test-log-list"></div>
+          </div>
+        </section>
+
+        <section id="page-settings" class="app-page">
+          <div class="page-panel settings-page-panel">
+            <div class="page-header">
+              <div>
+                <h1 data-i18n="settingsTitle">Settings</h1>
+                <p data-i18n="settingsHelp">Local test server and app data status.</p>
+              </div>
+            </div>
+            <div class="settings-grid">
+              <div class="settings-group-heading settings-wide">
+                <span data-i18n="settingsGroupUsage">Usage & connection</span>
+                <p data-i18n="settingsGroupUsageHelp">Daily scan allowance and backend status.</p>
+              </div>
+              <section>
+                <h2 data-i18n="backend">Backend</h2>
+                <p id="backendStatus">Not checked yet.</p>
+                <button id="checkBackendBtn" class="secondary-btn" type="button" data-i18n="checkBackend">Check backend</button>
+              </section>
+              <section>
+                <h2 data-i18n="diagnosticsTitle">App diagnostics</h2>
+                <p data-i18n="diagnosticsHelp">Useful details for support and iPhone testing.</p>
+                <dl class="diagnostics-list">
+                  <div>
+                    <dt data-i18n="diagnosticsVersion">Version</dt>
+                    <dd id="appVersionText">-</dd>
+                  </div>
+                  <div>
+                    <dt data-i18n="diagnosticsInstallMode">Install mode</dt>
+                    <dd id="installModeText">-</dd>
+                  </div>
+                  <div>
+                    <dt data-i18n="diagnosticsServiceWorker">Offline cache</dt>
+                    <dd id="serviceWorkerText">-</dd>
+                  </div>
+                  <div>
+                    <dt data-i18n="diagnosticsNetwork">Network</dt>
+                    <dd id="networkStatusText">-</dd>
+                  </div>
+                  <div>
+                    <dt data-i18n="diagnosticsPhoneUrl">iPhone URL</dt>
+                    <dd id="phoneUrlText">-</dd>
+                  </div>
+                </dl>
+                <div class="settings-link-actions">
+                  <button id="copyDiagnosticsBtn" class="secondary-btn" type="button" data-i18n="copyDiagnostics">Copy diagnostics</button>
+                  <button id="copyPhoneUrlBtn" class="secondary-btn" type="button" data-i18n="copyPhoneUrl">Copy iPhone URL</button>
+                  <button id="downloadSupportBundleBtn" class="secondary-btn" type="button" data-i18n="downloadSupportBundle">Download support bundle</button>
+                </div>
+                <p id="diagnosticsStatus" class="settings-note"></p>
+              </section>
+              <section>
+                <h2 data-i18n="usageTitle">Usage limits</h2>
+                <div class="free-scans-card">
+                  <span data-i18n="freeScansToday">Free scans remaining today</span>
+                  <strong id="freeScansRemainingText">-</strong>
+                  <small id="freeScansRemainingHelp" data-i18n="freeScansNotChecked">Check backend to see today's remaining scans.</small>
+                </div>
+                <p id="usageStatus" data-i18n="usageNotChecked">Not checked yet.</p>
+                <p class="install-id"><span data-i18n="installIdLabel">Install ID</span>: <code id="installIdText"></code></p>
+                <div class="usage-meter">
+                  <div class="usage-row">
+                    <span data-i18n="usageServerDaily">Server daily</span>
+                    <strong id="dailyUsageText">0 / 0</strong>
+                  </div>
+                  <div class="meter-track"><span id="dailyUsageBar"></span></div>
+                </div>
+                <div class="usage-meter">
+                  <div class="usage-row">
+                    <span data-i18n="usageServerMonthly">Server monthly</span>
+                    <strong id="monthlyUsageText">0 / 0</strong>
+                  </div>
+                  <div class="meter-track"><span id="monthlyUsageBar"></span></div>
+                </div>
+                <div class="usage-meter">
+                  <div class="usage-row">
+                    <span data-i18n="usageDeviceDaily">Device daily</span>
+                    <strong id="deviceDailyUsageText">0 / 0</strong>
+                  </div>
+                  <div class="meter-track"><span id="deviceDailyUsageBar"></span></div>
+                </div>
+                <div class="usage-meter">
+                  <div class="usage-row">
+                    <span data-i18n="usageDeviceMonthly">Device monthly</span>
+                    <strong id="deviceMonthlyUsageText">0 / 0</strong>
+                  </div>
+                  <div class="meter-track"><span id="deviceMonthlyUsageBar"></span></div>
+                </div>
+              </section>
+              <div class="settings-group-heading settings-wide">
+                <span data-i18n="settingsGroupData">Data & preferences</span>
+                <p data-i18n="settingsGroupDataHelp">Local storage, backup, language, and appearance.</p>
+              </div>
+              <section>
+                <h2 data-i18n="localData">Local data</h2>
+                <p id="storageStatus"></p>
+              </section>
+              <section class="settings-wide">
+                <h2 data-i18n="dataManagementTitle">Data management</h2>
+                <p data-i18n="dataManagementHelp">Export or restore a full local backup. Page-specific delete actions stay on their own pages.</p>
+                <div class="settings-link-actions">
+                  <button id="exportAllDataBtn" class="secondary-btn" type="button" data-i18n="exportBackup">Export backup</button>
+                  <label class="secondary-btn file-action" for="importAllDataInput" data-i18n="importBackup">Import backup</label>
+                  <input id="importAllDataInput" class="hidden-file-input" type="file" accept="application/json">
+                </div>
+                <div class="data-actions-grid">
+                  <button id="clearPreferencesDataBtn" class="secondary-btn danger" type="button" data-i18n="clearPreferences">Reset preferences</button>
+                  <button id="clearAllLocalDataBtn" class="secondary-btn danger strong-danger" type="button" data-i18n="clearAllLocalData">Clear all local data</button>
+                </div>
+              </section>
+              <section>
+                <h2 data-i18n="languageTitle">Language</h2>
+                <p data-i18n="languageHelp">Choose the interface and AI result language.</p>
+                <select id="languageSelect" aria-label="Language">
+                  <option value="en">English</option>
+                  <option value="de">Deutsch</option>
+                  <option value="fr">Francais</option>
+                  <option value="es">Espanol</option>
+                </select>
+              </section>
+              <section>
+                <h2 data-i18n="themeTitle">Appearance</h2>
+                <p data-i18n="themeHelp">Choose a calmer light view or a darker workshop-style view.</p>
+                <select id="themeSelect" aria-label="Theme">
+                  <option value="light" data-i18n="themeLight">Light</option>
+                  <option value="dark" data-i18n="themeDark">Dark</option>
+                  <option value="workshop" data-i18n="themeWorkshop">Workshop</option>
+                </select>
+              </section>
+              <section class="dev-only">
+                <h2 data-i18n="screenshotModeTitle">Screenshot mode</h2>
+                <p data-i18n="screenshotModeHelp">Hide local testing details for App Store screenshots.</p>
+                <label class="toggle-row">
+                  <input id="screenshotModeToggle" type="checkbox">
+                  <span data-i18n="screenshotModeToggle">Hide local diagnostics</span>
+                </label>
+              </section>
+              <div class="settings-group-heading settings-wide">
+                <span data-i18n="settingsGroupSupport">Support & trust</span>
+                <p data-i18n="settingsGroupSupportHelp">Help, privacy, installation, and AI safety information.</p>
+              </div>
+              <section>
+                <h2 data-i18n="installTitle">Install</h2>
+                <p data-i18n="installHelp">On iPhone, open this page in Safari, tap Share, then Add to Home Screen.</p>
+              </section>
+              <section>
+                <h2 data-i18n="supportTitle">Support & privacy</h2>
+                <p data-i18n="supportHelp">Open support and privacy information inside the app.</p>
+                <div class="settings-link-actions">
+                  <button id="openSupportInfoBtn" class="secondary-btn" type="button" data-i18n="supportPage">Support</button>
+                  <button id="openPrivacyInfoBtn" class="secondary-btn" type="button" data-i18n="privacyPolicy">Privacy policy</button>
+                </div>
+              </section>
+              <section>
+                <h2 data-i18n="safetySettingsTitle">AI safety acknowledgement</h2>
+                <p id="safetyAckStatus" data-i18n="safetyAckMissing">Not acknowledged on this device yet.</p>
+                <div class="settings-link-actions">
+                  <button id="reviewSafetyBtn" class="secondary-btn" type="button" data-i18n="reviewSafety">Review notice</button>
+                  <button id="resetSafetyAckBtn" class="secondary-btn" type="button" data-i18n="resetAcknowledgement">Reset</button>
+                </div>
+              </section>
+              <div class="settings-group-heading settings-wide dev-only">
+                <span data-i18n="settingsGroupDeveloper">Developer & release</span>
+                <p data-i18n="settingsGroupDeveloperHelp">Publishing preparation tools hidden from production users.</p>
+              </div>
+              <section class="settings-wide dev-only">
+                <h2 data-i18n="appStoreTitle">App Store readiness</h2>
+                <p data-i18n="appStoreHelp">Items to prepare before a real release.</p>
+                <div class="readiness-progress">
+                  <div>
+                    <strong id="readinessSummary">0 / 5 ready</strong>
+                    <span data-i18n="readinessProgressHelp">Release preparation progress</span>
+                  </div>
+                  <div class="meter-track"><span id="readinessProgressBar"></span></div>
+                </div>
+                <div class="readiness-list">
+                  <label><input type="checkbox" data-readiness="privacy"><span data-i18n="readyPrivacy">Privacy policy and data handling text</span></label>
+                  <label><input type="checkbox" data-readiness="support"><span data-i18n="readySupport">Support URL and contact email</span></label>
+                  <label><input type="checkbox" data-readiness="screenshots"><span data-i18n="readyScreenshots">App Store screenshots</span></label>
+                  <label><input type="checkbox" data-readiness="costs"><span data-i18n="readyCosts">Usage limits and billing alerts</span></label>
+                  <label><input type="checkbox" data-readiness="review"><span data-i18n="readyReview">AI disclaimer and manual verification wording</span></label>
+                </div>
+                <div class="settings-link-actions">
+                  <button id="clearReadinessDataBtn" class="secondary-btn danger" type="button" data-i18n="clearReadiness">Clear readiness checklist</button>
+                </div>
+              </section>
+              <section class="settings-wide dev-only">
+                <h2 data-i18n="publishingPackTitle">Publishing pack</h2>
+                <p data-i18n="publishingPackHelp">Generate review notes, privacy summary, store listing copy, and a release checklist from the current app state.</p>
+                <div id="releaseBlockerPanel" class="release-blockers">
+                  <strong id="releaseBlockerSummary" data-i18n="releaseBlockersChecking">Checking release blockers...</strong>
+                  <ul id="releaseBlockerList"></ul>
+                </div>
+                <div id="preflightPanel" class="preflight-panel">
+                  <div>
+                    <strong data-i18n="preflightTitle">Backend preflight</strong>
+                    <span data-i18n="preflightHelp">Server-side release checks from /api/preflight.</span>
+                  </div>
+                  <div id="preflightList" class="preflight-list"></div>
+                </div>
+                <div class="publishing-pack-grid">
+                  <article>
+                    <strong data-i18n="reviewNotesTitle">Review notes</strong>
+                    <span data-i18n="reviewNotesHelp">Short App Store reviewer context.</span>
+                  </article>
+                  <article>
+                    <strong data-i18n="privacySummaryTitle">Privacy summary</strong>
+                    <span data-i18n="privacySummaryHelp">Data handling points to align with privacy labels.</span>
+                  </article>
+                  <article>
+                    <strong data-i18n="releaseChecklistTitle">Release checklist</strong>
+                    <span data-i18n="releaseChecklistHelp">Exportable launch tasks for final submission.</span>
+                  </article>
+                  <article>
+                    <strong data-i18n="storeListingTitle">Store listing</strong>
+                    <span data-i18n="storeListingHelp">Draft App Store text for the product page.</span>
+                  </article>
+                  <article>
+                    <strong data-i18n="productionEnvTitle">Production env</strong>
+                    <span data-i18n="productionEnvHelp">Safe backend variable template without secrets.</span>
+                  </article>
+                  <article>
+                    <strong data-i18n="supportConfigTitle">Support config</strong>
+                    <span data-i18n="supportConfigHelp">Template for public support, privacy, and terms URLs.</span>
+                  </article>
+                </div>
+                <div class="settings-link-actions">
+                  <button id="copyReviewNotesBtn" class="secondary-btn" type="button" data-i18n="copyReviewNotes">Copy review notes</button>
+                  <button id="copyPrivacySummaryBtn" class="secondary-btn" type="button" data-i18n="copyPrivacySummary">Copy privacy summary</button>
+                  <button id="copyStoreListingBtn" class="secondary-btn" type="button" data-i18n="copyStoreListing">Copy store listing</button>
+                  <button id="copyProductionEnvBtn" class="secondary-btn" type="button" data-i18n="copyProductionEnv">Copy env template</button>
+                  <button id="copySupportConfigBtn" class="secondary-btn" type="button" data-i18n="copySupportConfig">Copy support config</button>
+                  <button id="downloadReleaseChecklistBtn" class="secondary-btn" type="button" data-i18n="downloadReleaseChecklist">Download release checklist</button>
+                </div>
+              </section>
+              <div class="settings-group-heading settings-wide">
+                <span data-i18n="settingsGroupProjects">Projects</span>
+                <p data-i18n="settingsGroupProjectsHelp">Organize scans by machine, assembly, or test setup.</p>
+              </div>
+              <section class="settings-wide">
+                <h2 data-i18n="projectsTitle">Projects</h2>
+                <p data-i18n="projectsHelp">Group scans by machine, assembly, or test setup.</p>
+                <div class="inline-create wide">
+                  <input id="projectPageName" type="text" placeholder="Project name" data-i18n-placeholder="projectName">
+                  <button id="projectPageAddBtn" class="primary-btn compact" type="button" data-i18n="addProject">Add project</button>
+                </div>
+                <div id="projectList" class="management-list"></div>
+              </section>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <script src="/app.js?v=20260529-5"></script>
+  </body>
+</html>

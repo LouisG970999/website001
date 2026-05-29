@@ -1,0 +1,12 @@
+{
+  "name": "mechanical-component-scanner",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Mobile web app for identifying mechanical components from iPhone camera photos.",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
