@@ -1,4 +1,4 @@
-const CACHE_NAME = "techspec-scanner-v67";
+const CACHE_NAME = "techspec-scanner-v68";
 const APP_SHELL = [
   "/",
   "/index.html",

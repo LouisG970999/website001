@@ -6,6 +6,10 @@
   const summary = document.querySelector("#adminFeedbackSummary");
   const stats = document.querySelector("#adminFeedbackStats");
   const list = document.querySelector("#adminFeedbackList");
+  const healthSummary = document.querySelector("#adminHealthSummary");
+  const healthStats = document.querySelector("#adminHealthStats");
+  const preflightList = document.querySelector("#adminPreflightList");
+  const refreshHealthBtn = document.querySelector("#refreshAdminHealthBtn");
   const searchInput = document.querySelector("#feedbackSearchInput");
   const categoryFilter = document.querySelector("#feedbackCategoryFilter");
   const ratingFilter = document.querySelector("#feedbackRatingFilter");
@@ -20,6 +24,8 @@
     event.preventDefault();
     await loadFeedback();
   });
+
+  refreshHealthBtn?.addEventListener("click", loadHealth);
 
   list.addEventListener("click", async event => {
     const button = event.target.closest("[data-delete-feedback-id]");
@@ -57,6 +63,60 @@
     if (ratingFilter) ratingFilter.value = "";
     renderFeedback(latestExport);
   });
+
+  loadHealth();
+
+  async function loadHealth() {
+    if (!healthSummary || !healthStats || !preflightList) return;
+    healthSummary.textContent = "Checking hosted app status...";
+    healthStats.replaceChildren();
+    preflightList.replaceChildren();
+
+    try {
+      const response = await fetch("/api/health", { cache: "no-store" });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || !result.ok) throw new Error("Health check failed.");
+      renderHealth(result);
+    } catch (error) {
+      healthSummary.textContent = error.message || "Health check failed.";
+      healthStats.replaceChildren(
+        statCard("Backend", "Unavailable"),
+        statCard("Action", "Refresh later")
+      );
+    }
+  }
+
+  function renderHealth(health) {
+    const checks = Array.isArray(health.preflight?.checks) ? health.preflight.checks : [];
+    const criticalCount = checks.filter(check => !check.ok && check.severity === "critical").length;
+    const warningCount = checks.filter(check => !check.ok && check.severity === "warning").length;
+    const usage = health.usage || {};
+    const daily = usage.dailyLimit ? `${usage.dailyCount || 0} / ${usage.dailyLimit}` : String(usage.dailyCount || 0);
+    const monthly = usage.monthlyLimit ? `${usage.monthlyCount || 0} / ${usage.monthlyLimit}` : String(usage.monthlyCount || 0);
+
+    healthSummary.textContent = `${health.appMode || "unknown"} mode. Server ${health.serverVersion || "unknown"}. Started ${formatDate(health.startedAt)}.`;
+    healthStats.replaceChildren(
+      statCard("Backend", health.ok ? "Online" : "Issue"),
+      statCard("Gemini", health.geminiConfigured ? "Configured" : "Missing"),
+      statCard("Beta access", health.betaAccessRequired ? "Enabled" : "Disabled"),
+      statCard("Daily scans", daily),
+      statCard("Monthly scans", monthly),
+      statCard("Preflight", `${criticalCount} critical / ${warningCount} warning`)
+    );
+
+    preflightList.replaceChildren();
+    for (const check of checks) {
+      const row = document.createElement("div");
+      row.className = "admin-preflight-row";
+      row.dataset.status = check.ok ? "ok" : check.severity || "warning";
+      row.innerHTML = `
+        <strong>${escapeHtml(check.id || "check")}</strong>
+        <span>${escapeHtml(check.ok ? "OK" : check.severity || "warning")}</span>
+        <p>${escapeHtml(check.message || "")}</p>
+      `;
+      preflightList.appendChild(row);
+    }
+  }
 
   async function loadFeedback() {
     const code = codeInput.value.trim();

@@ -39,6 +39,18 @@
         </article>
 
         <article class="content-panel wide">
+          <div class="admin-feedback-header">
+            <div>
+              <h2>Beta health</h2>
+              <p id="adminHealthSummary" class="small-note">Checking hosted app status...</p>
+            </div>
+            <button id="refreshAdminHealthBtn" class="button-link" type="button">Refresh status</button>
+          </div>
+          <div id="adminHealthStats" class="feedback-stats"></div>
+          <div id="adminPreflightList" class="admin-preflight-list"></div>
+        </article>
+
+        <article class="content-panel wide">
           <h2>Load feedback</h2>
           <form id="adminFeedbackForm" class="feedback-form">
             <label>
