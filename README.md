@@ -84,6 +84,7 @@ Draft publishing and deployment materials live in `docs/`:
 
 - `docs/privacy-policy-draft.md`
 - `docs/app-store-listing-draft.md`
+- `docs/app-store-submission-checklist.md`
 - `docs/production-deployment-plan.md`
 - `docs/deployment-runbook.md`
 

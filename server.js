@@ -91,6 +91,11 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if (req.method === "POST" && req.url === "/api/feedback/delete") {
+      await handleFeedbackDelete(req, res);
+      return;
+    }
+
     if (req.method === "POST" && req.url === "/api/analyze") {
       await handleAnalyze(req, res);
       return;
@@ -250,6 +255,34 @@ function handleFeedbackExport(req, res) {
     generatedAt: new Date().toISOString(),
     count: feedback.length,
     feedback
+  });
+}
+
+async function handleFeedbackDelete(req, res) {
+  if (!hasValidFeedbackAdminAccess(req)) {
+    sendError(res, 403, "ADMIN_ACCESS_REQUIRED", "A valid feedback admin code is required.");
+    return;
+  }
+
+  const body = await readJsonBody(req, MAX_FEEDBACK_BODY_BYTES);
+  const id = sanitizeText(body.id, 120);
+  if (!id) {
+    sendError(res, 400, "MISSING_FEEDBACK_ID", "Missing feedback id.");
+    return;
+  }
+
+  const feedback = readJsonArray(feedbackFile);
+  const nextFeedback = feedback.filter(entry => entry.id !== id);
+  if (nextFeedback.length === feedback.length) {
+    sendError(res, 404, "FEEDBACK_NOT_FOUND", "Feedback entry not found.");
+    return;
+  }
+
+  writeJsonFile(feedbackFile, nextFeedback);
+  sendJson(res, 200, {
+    ok: true,
+    deletedId: id,
+    count: nextFeedback.length
   });
 }
 

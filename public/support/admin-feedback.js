@@ -21,6 +21,14 @@
     await loadFeedback();
   });
 
+  list.addEventListener("click", async event => {
+    const button = event.target.closest("[data-delete-feedback-id]");
+    if (!button) return;
+    const id = button.dataset.deleteFeedbackId;
+    if (!id || !window.confirm("Delete this feedback entry? This cannot be undone.")) return;
+    await deleteFeedback(id);
+  });
+
   downloadJsonBtn?.addEventListener("click", () => {
     if (!latestExport) return;
     downloadText(
@@ -80,6 +88,33 @@
     }
   }
 
+  async function deleteFeedback(id) {
+    const code = codeInput.value.trim();
+    if (!code) {
+      status.textContent = "Enter your feedback admin code first.";
+      codeInput.focus();
+      return;
+    }
+
+    status.textContent = "Deleting feedback entry...";
+    try {
+      const response = await fetch("/api/feedback/delete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-TechSpec-Admin-Code": code
+        },
+        body: JSON.stringify({ id })
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error || result.message || "Feedback could not be deleted.");
+      status.textContent = "Feedback entry deleted.";
+      await loadFeedback();
+    } catch (error) {
+      status.textContent = error.message || "Feedback could not be deleted.";
+    }
+  }
+
   function renderFeedback(exportPayload) {
     if (!exportPayload) return;
     const entries = Array.isArray(exportPayload.feedback) ? exportPayload.feedback : [];
@@ -108,6 +143,7 @@
         </div>
         <p>${escapeHtml(entry.message || "")}</p>
         <dl>
+          <dt>ID</dt><dd>${escapeHtml(entry.id || "unknown")}</dd>
           <dt>Rating</dt><dd>${escapeHtml(entry.rating || "none")}</dd>
           <dt>Page</dt><dd>${escapeHtml(entry.page || "not provided")}</dd>
           <dt>Contact</dt><dd>${escapeHtml(entry.contact || "not provided")}</dd>
@@ -115,6 +151,9 @@
           <dt>App version</dt><dd>${escapeHtml(entry.appVersion || "unknown")}</dd>
           <dt>Screen</dt><dd>${escapeHtml(entry.screen || "unknown")}</dd>
         </dl>
+        <div class="feedback-entry-actions">
+          <button class="button-link danger-action" type="button" data-delete-feedback-id="${escapeHtml(entry.id || "")}">Delete entry</button>
+        </div>
       `;
       list.appendChild(article);
     }

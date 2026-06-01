@@ -429,6 +429,22 @@ code {
   overflow-wrap: anywhere;
 }
 
+.feedback-entry-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.danger-action {
+  border-color: #f0b4aa;
+  color: #9f2f22;
+}
+
+.danger-action:hover {
+  border-color: #c24131;
+  color: #7f1d1d;
+}
+
 .footer {
   margin-top: 20px;
   color: var(--muted);
