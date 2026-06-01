@@ -10,7 +10,7 @@ const readinessKey = "component-scanner-readiness-v1";
 const installIdKey = "component-scanner-install-id-v1";
 const safetyAckKey = "component-scanner-safety-ack-v1";
 const betaAccessCodeKey = "techspec-beta-access-code-v1";
-const appBuildVersion = "20260531-1";
+const appBuildVersion = "20260601-1";
 const maxHistoryItems = 8;
 const maxDatabaseMatches = 4;
 const maxTestLogItems = 200;
@@ -3080,7 +3080,12 @@ function buildReviewNotesText() {
     "2. Review and accept the AI/privacy acknowledgement.",
     "3. Add or take a component photo on the Scan page.",
     "4. Run Analyze component.",
-    "5. Review result evidence, uncertainty, recommended checks, export/report features, and local data controls in Settings."
+    "5. Review result evidence, uncertainty, recommended checks, export/report features, and local data controls in Settings.",
+    "",
+    "Beta/TestFlight access:",
+    "- If beta access protection is enabled, use the beta code provided in the review notes or TestFlight instructions.",
+    "- Feedback can be submitted from the result screen or /support/feedback.html.",
+    "- Owner-only feedback export/deletion is protected by FEEDBACK_ADMIN_CODE and is not required for testers."
   ].join("\n");
 }
 
@@ -3092,6 +3097,7 @@ function buildPrivacySummaryText() {
     "- Component photos selected by the user for analysis.",
     "- Optional context notes, measurements, projects, corrections, verification labels, and evaluation notes entered by the user.",
     "- Anonymous install ID and usage counters for rate limiting, cost control, diagnostics, and abuse prevention.",
+    "- Beta feedback messages and optional contact email when the feedback form is submitted.",
     "- Local app settings, scan history, known parts, test logs, language, theme, and readiness checklist data stored in this browser.",
     "- Screenshot mode preference, when enabled, hides local testing details in the interface for App Store screenshots.",
     "",
@@ -3111,6 +3117,27 @@ function buildPrivacySummaryText() {
     "",
     "Not currently included unless added later:",
     "- Accounts, cloud sync, advertising tracking, contacts, location, payment data, or third-party analytics SDKs."
+  ].join("\n");
+}
+
+function buildTestFlightText() {
+  return [
+    "TechSpec Scanner - TestFlight Draft",
+    "",
+    "Beta description:",
+    "TechSpec Scanner is an AI-assisted tool for documenting and identifying mechanical components from photos. Testers can scan parts, review suggested identification details, export reports, and send feedback about accuracy, usability, and unclear results.",
+    "",
+    "What to test:",
+    "Please scan 2-3 mechanical components, including one easy part and one difficult or poorly marked part. Check whether the component name, material clues, confidence, visible features, uncertainty, and recommended next photo are understandable. Send feedback from the result screen or beta feedback page.",
+    "",
+    "Beta access:",
+    "Use the current private beta code. Do not publish the code publicly.",
+    "",
+    "Feedback:",
+    `${latestHealth?.preflight?.publicBaseUrl || window.location.origin}/support/feedback.html`,
+    "",
+    "Review notes:",
+    "The app sends user-selected mechanical component photos and context to a backend service. The backend stores the Gemini API key as an environment variable and forwards scan requests to Google Gemini. The frontend does not contain the API key. AI results are suggestions only and the app tells users to verify with measurements, markings, manufacturer documentation, and engineering judgment."
   ].join("\n");
 }
 
@@ -3148,7 +3175,10 @@ function buildStoreListingText() {
     latestHealth?.preflight?.publicBaseUrl ? `${latestHealth.preflight.publicBaseUrl}/support/` : "Replace with final HTTPS support URL.",
     "",
     "Privacy URL:",
-    latestHealth?.preflight?.publicBaseUrl ? `${latestHealth.preflight.publicBaseUrl}/support/privacy.html` : "Replace with final HTTPS privacy policy URL."
+    latestHealth?.preflight?.publicBaseUrl ? `${latestHealth.preflight.publicBaseUrl}/support/privacy.html` : "Replace with final HTTPS privacy policy URL.",
+    "",
+    "Beta guide URL:",
+    latestHealth?.preflight?.publicBaseUrl ? `${latestHealth.preflight.publicBaseUrl}/support/beta.html` : "Replace with final HTTPS beta guide URL."
   ].join("\n");
 }
 
@@ -3234,6 +3264,9 @@ function buildReleaseChecklistText() {
     "- [ ] Confirm App Store privacy labels match actual production behavior.",
     "- [ ] Confirm Google Cloud billing alerts and Gemini quotas are active.",
     "- [ ] Confirm API key restrictions and key rotation process.",
+    "- [ ] Confirm FEEDBACK_ADMIN_CODE is configured and owner-only.",
+    "- [ ] Export and review beta feedback before App Store submission.",
+    "- [ ] Confirm individual feedback deletion works for deletion requests.",
     "- [ ] Confirm Terms of Use if paid plans, accounts, or subscriptions are added.",
     "- [ ] Capture final App Store screenshots from the production build.",
     "- [ ] Test scanning, report export, backup export/import, local deletion, language switch, and light/dark/workshop appearance on iPhone.",
@@ -3245,6 +3278,9 @@ function buildReleaseChecklistText() {
     "- [ ] Store Gemini API key as a server-side secret.",
     "- [ ] Enable request body limits, rate limits, daily/monthly limits, and monitoring.",
     "- [ ] Test Gemini auth, quota, network, server, and invalid image error paths.",
+    "",
+    "## TestFlight Draft",
+    buildTestFlightText(),
     "",
     "## App Store Review Notes",
     buildReviewNotesText()
