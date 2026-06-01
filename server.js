@@ -10,7 +10,7 @@ const usageFile = path.join(dataDir, "usage.json");
 const feedbackFile = path.join(dataDir, "feedback.json");
 loadEnv(path.join(root, ".env"));
 
-const SERVER_VERSION = "20260601-4";
+const SERVER_VERSION = "20260601-5";
 const SERVER_STARTED_AT = new Date().toISOString();
 const PORT = Number(process.env.PORT || 3000);
 const APP_MODE = normalizeAppMode(process.env.APP_MODE);
@@ -40,6 +40,7 @@ const mimeTypes = {
   ".css": "text/css; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
+  ".txt": "text/plain; charset=utf-8",
   ".png": "image/png",
   ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",
@@ -687,6 +688,7 @@ function sendStaticFile(filePath, res) {
 function staticFileHeaders(filePath) {
   const relativePath = path.relative(publicDir, filePath).replace(/\\/g, "/");
   const privateSupportPages = new Set([
+    "index.html",
     "support/admin-feedback.html",
     "support/beta.html",
     "support/feedback.html"

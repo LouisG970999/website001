@@ -62,6 +62,17 @@ async function main() {
     "Admin feedback page is missing noindex X-Robots-Tag."
   );
 
+  const appShell = await fetch(`${baseUrl}/`);
+  assert(appShell.status === 200, "App shell did not load.");
+  assert(
+    /noindex/i.test(appShell.headers.get("x-robots-tag") || ""),
+    "Private beta app shell is missing noindex X-Robots-Tag."
+  );
+
+  const robots = await fetch(`${baseUrl}/robots.txt`);
+  assert(robots.status === 200, "robots.txt did not load.");
+  assert((await robots.text()).includes("Disallow: /"), "robots.txt should disallow indexing during private beta.");
+
   const blockedFeedback = await postJson("/api/feedback", {
     category: "bug",
     message: "This should be blocked because the beta code is missing."

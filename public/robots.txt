@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /
+
+# Private beta build. Do not index the app, API, beta guide, feedback form, or owner admin page.
