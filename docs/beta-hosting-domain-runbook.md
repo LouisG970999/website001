@@ -183,6 +183,14 @@ X-TechSpec-Admin-Code: private-owner-only-feedback-code
 
 The response contains the stored feedback entries as JSON. This file-based storage is only suitable for early beta testing because free hosts can clear local files during redeploys or restarts.
 
+You can also use the owner page:
+
+```text
+https://app.techspecscanner.com/support/admin-feedback.html
+```
+
+Enter `FEEDBACK_ADMIN_CODE`, load the entries, then download JSON or CSV. Do not share this page/code with testers.
+
 ## Important Beta Limitation
 
 The current file-based feedback and usage storage is fine for early testing, but production should use persistent storage. If the host has an ephemeral filesystem, `.data/feedback.json` and `.data/usage.json` may not survive redeploys.

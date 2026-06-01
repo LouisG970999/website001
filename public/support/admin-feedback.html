@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#eaf4ff">
+    <title>TechSpec Scanner Feedback Admin</title>
+    <link rel="icon" href="/icons/icon-192.png" type="image/png">
+    <link rel="stylesheet" href="/support/support.css">
+  </head>
+  <body>
+    <main class="site-shell">
+      <nav class="site-nav" aria-label="Support navigation">
+        <a class="brand" href="/support/">
+          <img src="/icons/icon-192.png" alt="">
+          <span data-support-field="appName">TechSpec Scanner</span>
+        </a>
+        <div class="nav-links">
+          <a href="/support/">Support</a>
+          <a href="/support/beta.html">Beta guide</a>
+          <a href="/support/feedback.html">Feedback</a>
+          <a href="/">Open App</a>
+        </div>
+      </nav>
+
+      <section class="hero compact">
+        <div>
+          <p class="eyebrow">Owner tool</p>
+          <h1>Feedback Admin</h1>
+          <p>Load beta tester feedback with your private admin code, then export it as JSON or CSV for review.</p>
+        </div>
+      </section>
+
+      <section class="content-grid">
+        <article class="content-panel notice wide">
+          <h2>Private admin access</h2>
+          <p>This page is for the app owner only. Do not share your feedback admin code with testers. Testers only need the normal beta access code.</p>
+        </article>
+
+        <article class="content-panel wide">
+          <h2>Load feedback</h2>
+          <form id="adminFeedbackForm" class="feedback-form">
+            <label>
+              Feedback admin code
+              <input id="adminFeedbackCode" type="password" autocomplete="off" placeholder="Paste your FEEDBACK_ADMIN_CODE" required>
+            </label>
+            <button class="button-link primary-action" type="submit">Load feedback</button>
+            <p id="adminFeedbackStatus" class="small-note wide-field" role="status"></p>
+          </form>
+        </article>
+
+        <article id="adminFeedbackResults" class="content-panel wide is-hidden">
+          <div class="admin-feedback-header">
+            <div>
+              <h2>Feedback entries</h2>
+              <p id="adminFeedbackSummary" class="small-note"></p>
+            </div>
+            <div class="admin-feedback-actions">
+              <button id="downloadFeedbackJsonBtn" class="button-link" type="button">Download JSON</button>
+              <button id="downloadFeedbackCsvBtn" class="button-link" type="button">Download CSV</button>
+            </div>
+          </div>
+          <div id="adminFeedbackList" class="feedback-entry-list"></div>
+        </article>
+      </section>
+
+      <p class="footer"><span data-support-field="appName">TechSpec Scanner</span> feedback admin. <a href="/support/privacy.html">Privacy Policy</a> &middot; <a href="/support/legal.html">Legal Notice</a>.</p>
+    </main>
+    <script src="/support/support-config.js"></script>
+    <script src="/support/support.js"></script>
+    <script src="/support/admin-feedback.js"></script>
+  </body>
+</html>
