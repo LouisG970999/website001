@@ -84,7 +84,7 @@ body.production-mode .dev-only {
 html {
   min-height: 100%;
   width: 100%;
-  overflow-x: clip;
+  overflow-x: hidden;
   overscroll-behavior-x: none;
 }
 
@@ -102,9 +102,15 @@ body {
     var(--surface);
   background-size: auto, 44px 44px, 44px 44px;
   color: var(--ink);
-  overflow-x: clip;
+  overflow-x: hidden;
   overscroll-behavior-x: none;
   touch-action: pan-y pinch-zoom;
+}
+
+img,
+canvas,
+video {
+  max-width: 100%;
 }
 
 button,
@@ -255,9 +261,12 @@ textarea {
 }
 
 .app-frame {
+  width: 100%;
+  max-width: 100%;
   min-height: 100vh;
   display: grid;
   grid-template-columns: 220px minmax(0, 1fr);
+  overflow-x: hidden;
 }
 
 .app-nav {
@@ -306,7 +315,10 @@ textarea {
 }
 
 .app-content {
+  width: 100%;
+  max-width: 100%;
   min-width: 0;
+  overflow-x: hidden;
 }
 
 .app-page {

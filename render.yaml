@@ -2,7 +2,7 @@ services:
   - type: web
     name: techspec-scanner-beta
     runtime: node
-    plan: starter
+    plan: free
     buildCommand: npm install
     startCommand: npm start
     healthCheckPath: /api/health
@@ -16,6 +16,8 @@ services:
       - key: GEMINI_API_KEY
         sync: false
       - key: BETA_ACCESS_CODE
+        sync: false
+      - key: FEEDBACK_ADMIN_CODE
         sync: false
       - key: GEMINI_FAST_MODEL
         value: gemini-2.5-flash-lite

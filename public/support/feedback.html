@@ -17,6 +17,7 @@
         </a>
         <div class="nav-links">
           <a href="/support/">Support</a>
+          <a href="/support/beta.html">Beta guide</a>
           <a href="/support/privacy.html">Privacy</a>
           <a href="/support/terms.html">Terms</a>
           <a href="/support/legal.html">Legal</a>
@@ -65,6 +66,10 @@
               </select>
             </label>
             <label>
+              Beta access code
+              <input id="feedbackBetaCode" name="betaCode" type="password" autocomplete="off" placeholder="Only needed if this page asks for it">
+            </label>
+            <label>
               Where did it happen?
               <input id="feedbackPage" name="page" type="text" placeholder="e.g. scan, PDF export, settings, website">
             </label>
@@ -76,13 +81,14 @@
               What happened?
               <textarea id="feedbackMessage" name="message" rows="7" placeholder="Describe the component, what you expected, what the app returned, and what felt unclear." required></textarea>
             </label>
+            <p class="small-note wide-field">The beta code is used only to send this feedback request. Do not include API keys, passwords, or private documents in the message.</p>
             <button class="button-link primary-action" type="submit">Send feedback</button>
             <p id="feedbackStatus" class="small-note" role="status"></p>
           </form>
         </article>
       </section>
 
-      <p class="footer"><span data-support-field="appName">TechSpec Scanner</span> beta feedback. <a href="/support/privacy.html">Privacy Policy</a> · <a href="/support/legal.html">Legal Notice</a>.</p>
+      <p class="footer"><span data-support-field="appName">TechSpec Scanner</span> beta feedback. <a href="/support/privacy.html">Privacy Policy</a> &middot; <a href="/support/legal.html">Legal Notice</a>.</p>
     </main>
     <script src="/support/support-config.js"></script>
     <script src="/support/support.js"></script>

@@ -9,6 +9,7 @@ Recommended beta setup:
 - Public website: `https://techspecscanner.com`
 - App/backend: `https://app.techspecscanner.com`
 - Private beta access: `BETA_ACCESS_CODE`
+- Feedback export access: `FEEDBACK_ADMIN_CODE`
 
 ## Why This Is Needed
 
@@ -77,6 +78,7 @@ APP_MODE=production
 PUBLIC_BASE_URL=https://app.techspecscanner.com
 GEMINI_API_KEY=your_gemini_key
 BETA_ACCESS_CODE=private-code-for-testers
+FEEDBACK_ADMIN_CODE=private-owner-only-feedback-code
 GEMINI_FAST_MODEL=gemini-2.5-flash-lite
 GEMINI_STRONG_MODEL=gemini-2.5-flash
 DAILY_SCAN_LIMIT=80
@@ -118,6 +120,7 @@ window.TechSpecSupport = {
   publisherName: "Final publisher name",
   supportEmail: "support@techspecscanner.com",
   supportWebsite: "https://app.techspecscanner.com/support/",
+  betaGuideUrl: "https://app.techspecscanner.com/support/beta.html",
   privacyUrl: "https://app.techspecscanner.com/support/privacy.html",
   termsUrl: "https://app.techspecscanner.com/support/terms.html",
   legalUrl: "https://app.techspecscanner.com/support/legal.html",
@@ -161,6 +164,24 @@ private-code-for-testers
 Feedback:
 https://app.techspecscanner.com/support/feedback.html
 ```
+
+## Step 9: Export Beta Feedback
+
+Set `FEEDBACK_ADMIN_CODE` to a private owner-only value. Do not send this code to testers.
+
+To export feedback from the hosted server, make a `GET` request to:
+
+```text
+https://app.techspecscanner.com/api/feedback/export
+```
+
+with this request header:
+
+```text
+X-TechSpec-Admin-Code: private-owner-only-feedback-code
+```
+
+The response contains the stored feedback entries as JSON. This file-based storage is only suitable for early beta testing because free hosts can clear local files during redeploys or restarts.
 
 ## Important Beta Limitation
 

@@ -10,7 +10,7 @@ const usageFile = path.join(dataDir, "usage.json");
 const feedbackFile = path.join(dataDir, "feedback.json");
 loadEnv(path.join(root, ".env"));
 
-const SERVER_VERSION = "20260529-1";
+const SERVER_VERSION = "20260531-1";
 const SERVER_STARTED_AT = new Date().toISOString();
 const PORT = Number(process.env.PORT || 3000);
 const APP_MODE = normalizeAppMode(process.env.APP_MODE);
@@ -31,6 +31,7 @@ const MAX_ANALYZE_BODY_BYTES = Number(process.env.MAX_ANALYZE_BODY_BYTES || 14 *
 const MAX_FEEDBACK_BODY_BYTES = Number(process.env.MAX_FEEDBACK_BODY_BYTES || 128 * 1024);
 const MAX_IMAGE_BASE64_CHARS = Number(process.env.MAX_IMAGE_BASE64_CHARS || 6_500_000);
 const BETA_ACCESS_CODE = (process.env.BETA_ACCESS_CODE || "").trim();
+const FEEDBACK_ADMIN_CODE = (process.env.FEEDBACK_ADMIN_CODE || "").trim();
 const rateLimitBuckets = new Map();
 
 const mimeTypes = {
@@ -82,6 +83,11 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === "POST" && req.url === "/api/feedback") {
       await handleFeedback(req, res);
+      return;
+    }
+
+    if (req.method === "GET" && req.url === "/api/feedback/export") {
+      handleFeedbackExport(req, res);
       return;
     }
 
@@ -216,6 +222,8 @@ async function handleFeedback(req, res) {
     message: sanitizeText(body.message, 2400),
     contact: sanitizeText(body.contact, 160),
     appVersion: sanitizeText(body.appVersion, 80),
+    browserOnline: typeof body.browserOnline === "boolean" ? body.browserOnline : null,
+    screen: sanitizeText(body.screen, 40),
     userAgent: sanitizeText(req.headers["user-agent"], 300)
   };
 
@@ -228,6 +236,21 @@ async function handleFeedback(req, res) {
   feedback.push(entry);
   writeJsonFile(feedbackFile, feedback);
   sendJson(res, 200, { ok: true, id: entry.id });
+}
+
+function handleFeedbackExport(req, res) {
+  if (!hasValidFeedbackAdminAccess(req)) {
+    sendError(res, 403, "ADMIN_ACCESS_REQUIRED", "A valid feedback admin code is required.");
+    return;
+  }
+
+  const feedback = readJsonArray(feedbackFile);
+  sendJson(res, 200, {
+    ok: true,
+    generatedAt: new Date().toISOString(),
+    count: feedback.length,
+    feedback
+  });
 }
 
 async function analyzeWithGemini({ images, notes, scanMode, photoChecklist, measurements, projectName, language, model }) {
@@ -879,6 +902,12 @@ function hasValidBetaAccess(req) {
   return Boolean(provided && safeEqual(provided, BETA_ACCESS_CODE));
 }
 
+function hasValidFeedbackAdminAccess(req) {
+  if (!FEEDBACK_ADMIN_CODE) return false;
+  const provided = String(req.headers["x-techspec-admin-code"] || "").trim();
+  return Boolean(provided && safeEqual(provided, FEEDBACK_ADMIN_CODE));
+}
+
 function safeEqual(a, b) {
   const left = Buffer.from(String(a));
   const right = Buffer.from(String(b));
@@ -1003,7 +1032,7 @@ function getPreflightSnapshot(req) {
       id: "support-pages",
       ok: support.pagesAvailable,
       severity: "critical",
-      message: support.pagesAvailable ? "Support, privacy, terms, legal, and feedback pages are available." : "A required support/legal/feedback page is missing."
+      message: support.pagesAvailable ? "Support, beta guide, privacy, terms, legal, and feedback pages are available." : "A required support/beta/legal/feedback page is missing."
     },
     {
       id: "beta-access",
@@ -1012,6 +1041,14 @@ function getPreflightSnapshot(req) {
       message: isBetaAccessRequired()
         ? "Beta access code protection is enabled."
         : "Set BETA_ACCESS_CODE before sharing a private beta link outside trusted local testing."
+    },
+    {
+      id: "feedback-admin",
+      ok: APP_MODE !== "production" || Boolean(FEEDBACK_ADMIN_CODE),
+      severity: "warning",
+      message: FEEDBACK_ADMIN_CODE
+        ? "Feedback export admin code is configured."
+        : "Set FEEDBACK_ADMIN_CODE before relying on hosted beta feedback collection."
     },
     {
       id: "limits",
@@ -1039,6 +1076,7 @@ function getPreflightSnapshot(req) {
 function readSupportConfigSnapshot() {
   const configPath = path.join(publicDir, "support", "support-config.js");
   const supportIndexPath = path.join(publicDir, "support", "index.html");
+  const betaPath = path.join(publicDir, "support", "beta.html");
   const privacyPath = path.join(publicDir, "support", "privacy.html");
   const termsPath = path.join(publicDir, "support", "terms.html");
   const legalPath = path.join(publicDir, "support", "legal.html");
@@ -1056,7 +1094,7 @@ function readSupportConfigSnapshot() {
     privacyUrlConfigured: Boolean(privacyUrl && /^https:\/\//i.test(privacyUrl)),
     termsUrlConfigured: Boolean(termsUrl && /^https:\/\//i.test(termsUrl)),
     privacyPublished: Boolean(publicationDate && !/^draft$/i.test(publicationDate)),
-    pagesAvailable: fs.existsSync(supportIndexPath) && fs.existsSync(privacyPath) && fs.existsSync(termsPath) && fs.existsSync(legalPath) && fs.existsSync(feedbackPath),
+    pagesAvailable: fs.existsSync(supportIndexPath) && fs.existsSync(betaPath) && fs.existsSync(privacyPath) && fs.existsSync(termsPath) && fs.existsSync(legalPath) && fs.existsSync(feedbackPath),
     placeholders: {
       supportEmail: !supportEmail || /support@example\.com/i.test(supportEmail),
       supportWebsite: !supportWebsite || !/^https:\/\//i.test(supportWebsite),

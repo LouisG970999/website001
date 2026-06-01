@@ -61,6 +61,9 @@ Create a `.env` file:
 ```env
 GEMINI_API_KEY=your_key_here
 PORT=3000
+APP_MODE=development
+BETA_ACCESS_CODE=
+FEEDBACK_ADMIN_CODE=
 GEMINI_FAST_MODEL=gemini-2.5-flash-lite
 GEMINI_STRONG_MODEL=gemini-2.5-flash
 DAILY_SCAN_LIMIT=80
@@ -90,6 +93,7 @@ The project also includes a static support/privacy website in `public/support/`.
 Update `public/support/support-config.js` before publishing:
 
 - `/support/`
+- `/support/beta.html`
 - `/support/privacy.html`
 - `/support/terms.html`
 - `/support/legal.html`
@@ -106,6 +110,8 @@ http://localhost:3000/api/preflight
 For public builds, set `APP_MODE=production` on the backend. The frontend uses that health value to hide developer-only tools such as screenshot demo loading, App Store readiness controls, and Publishing Pack utilities.
 
 For a private beta, set `BETA_ACCESS_CODE` on the backend before sharing the hosted app link. When this value is present, AI scan requests and beta feedback submissions must include the code, which helps prevent casual link sharing from burning API credits.
+
+Set `FEEDBACK_ADMIN_CODE` to an owner-only value before relying on hosted beta feedback. It protects the feedback export endpoint at `/api/feedback/export`. Do not share that admin code with testers.
 
 ## Quick Checks
 

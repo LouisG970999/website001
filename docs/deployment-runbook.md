@@ -52,6 +52,8 @@ PORT=3000
 APP_MODE=production
 PUBLIC_BASE_URL=https://your-production-domain.example
 GEMINI_API_KEY=your_production_key
+BETA_ACCESS_CODE=private_beta_code_if_beta_is_enabled
+FEEDBACK_ADMIN_CODE=private_owner_only_feedback_code
 GEMINI_FAST_MODEL=gemini-2.5-flash-lite
 GEMINI_STRONG_MODEL=gemini-2.5-flash
 DAILY_SCAN_LIMIT=500
@@ -84,6 +86,7 @@ Then test locally:
 
 - `/`
 - `/support/`
+- `/support/beta.html`
 - `/support/privacy.html`
 - `/support/terms.html`
 - `/api/health`
@@ -92,6 +95,8 @@ Then test locally:
 - one real scan
 - one PDF export
 - one CSV test-log export
+- one feedback submission
+- feedback export with the owner-only admin code
 
 `/api/preflight` should be treated as the quick release gate. It must not expose secrets. Before public release, the critical checks should pass:
 
@@ -103,6 +108,7 @@ Then test locally:
 - Terms of Use URL uses a public HTTPS URL.
 - Support, privacy, and terms pages are reachable.
 - Rate limits and usage limits are configured.
+- Private beta feedback export is protected by `FEEDBACK_ADMIN_CODE`.
 
 ## 6. Deploy
 

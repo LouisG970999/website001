@@ -10,7 +10,7 @@ const readinessKey = "component-scanner-readiness-v1";
 const installIdKey = "component-scanner-install-id-v1";
 const safetyAckKey = "component-scanner-safety-ack-v1";
 const betaAccessCodeKey = "techspec-beta-access-code-v1";
-const appBuildVersion = "20260529-5";
+const appBuildVersion = "20260531-1";
 const maxHistoryItems = 8;
 const maxDatabaseMatches = 4;
 const maxTestLogItems = 200;
@@ -254,6 +254,7 @@ const translations = {
     copyResult: "Copy result",
     shareResult: "Share result",
     exportPdf: "Export PDF",
+    resultFeedback: "Send feedback",
     downloadJson: "Download JSON",
     editResult: "Edit result",
     saveEdits: "Save edits",
@@ -445,6 +446,8 @@ const translations = {
     supportContactHelp: "For help, feedback, or privacy questions, use the support contact configured for the public support page.",
     betaFeedback: "Beta feedback",
     betaFeedbackHelp: "Send structured feedback about wrong results, bugs, confusing screens, or feature wishes.",
+    betaGuide: "Beta guide",
+    betaGuideHelp: "A short checklist for testers so feedback is focused and useful.",
     openPublicSupport: "Open public support page",
     supportIncludeTitle: "When contacting support",
     supportIncludeVersion: "Include your app version.",
@@ -705,6 +708,7 @@ const translations = {
     copyResult: "Ergebnis kopieren",
     shareResult: "Ergebnis teilen",
     exportPdf: "PDF exportieren",
+    resultFeedback: "Feedback senden",
     downloadJson: "JSON herunterladen",
     editResult: "Ergebnis bearbeiten",
     saveEdits: "Aenderungen speichern",
@@ -896,6 +900,8 @@ const translations = {
     supportContactHelp: "Fuer Hilfe, Feedback oder Datenschutzfragen nutze den Supportkontakt der oeffentlichen Supportseite.",
     betaFeedback: "Beta-Feedback",
     betaFeedbackHelp: "Sende strukturiertes Feedback zu falschen Ergebnissen, Fehlern, unklaren Ansichten oder Funktionswuenschen.",
+    betaGuide: "Beta-Anleitung",
+    betaGuideHelp: "Eine kurze Checkliste fuer Tester, damit Feedback gezielt und nuetzlich ist.",
     openPublicSupport: "Oeffentliche Supportseite oeffnen",
     supportIncludeTitle: "Bei Supportanfragen",
     supportIncludeVersion: "App-Version angeben.",
@@ -1166,6 +1172,7 @@ translations.fr = {
   copyResult: "Copier le resultat",
   shareResult: "Partager le resultat",
   exportPdf: "Exporter PDF",
+  resultFeedback: "Envoyer feedback",
   downloadJson: "Telecharger JSON",
   editResult: "Modifier le resultat",
   saveEdits: "Enregistrer les modifications",
@@ -1350,6 +1357,8 @@ translations.fr = {
   supportContactHelp: "Pour aide, retour ou questions de confidentialite, utilisez le contact configure sur la page support publique.",
   betaFeedback: "Feedback beta",
   betaFeedbackHelp: "Envoyez un retour structure sur resultats faux, bugs, ecrans confus ou idees.",
+  betaGuide: "Guide beta",
+  betaGuideHelp: "Checklist courte pour rendre les retours plus utiles.",
   openPublicSupport: "Ouvrir la page support publique",
   supportIncludeTitle: "Pour contacter le support",
   supportIncludeVersion: "Incluez la version de l'app.",
@@ -1573,6 +1582,7 @@ translations.es = {
   copyResult: "Copiar resultado",
   shareResult: "Compartir resultado",
   exportPdf: "Exportar PDF",
+  resultFeedback: "Enviar feedback",
   downloadJson: "Descargar JSON",
   editResult: "Editar resultado",
   saveEdits: "Guardar cambios",
@@ -1757,6 +1767,8 @@ translations.es = {
   supportContactHelp: "Para ayuda, comentarios o privacidad, usa el contacto configurado en la pagina publica de soporte.",
   betaFeedback: "Feedback beta",
   betaFeedbackHelp: "Envia feedback estructurado sobre resultados erroneos, errores, pantallas confusas o ideas.",
+  betaGuide: "Guia beta",
+  betaGuideHelp: "Checklist breve para que el feedback sea claro y util.",
   openPublicSupport: "Abrir soporte publico",
   supportIncludeTitle: "Al contactar soporte",
   supportIncludeVersion: "Incluye la version de la app.",
@@ -1925,6 +1937,7 @@ const elements = {
   copyResultBtn: document.querySelector("#copyResultBtn"),
   shareResultBtn: document.querySelector("#shareResultBtn"),
   exportPdfBtn: document.querySelector("#exportPdfBtn"),
+  resultFeedbackBtn: document.querySelector("#resultFeedbackBtn"),
   downloadResultBtn: document.querySelector("#downloadResultBtn"),
   editResultBtn: document.querySelector("#editResultBtn"),
   saveEditsBtn: document.querySelector("#saveEditsBtn"),
@@ -2373,6 +2386,12 @@ elements.exportPdfBtn.addEventListener("click", () => {
   if (!latestResult) return;
   syncResultFromUi();
   showReportPreview(latestResult);
+});
+
+elements.resultFeedbackBtn.addEventListener("click", () => {
+  if (!latestResult) return;
+  syncResultFromUi();
+  window.location.href = buildResultFeedbackUrl();
 });
 
 elements.backFromReportBtn.addEventListener("click", returnFromReportPreview);
@@ -3143,6 +3162,8 @@ function buildProductionEnvTemplate() {
     "APP_MODE=production",
     `PUBLIC_BASE_URL=${publicBaseUrl}`,
     "GEMINI_API_KEY=replace_with_production_secret_in_host_dashboard",
+    "BETA_ACCESS_CODE=private_beta_code_if_beta_is_enabled",
+    "FEEDBACK_ADMIN_CODE=private_owner_only_feedback_code",
     "GEMINI_FAST_MODEL=gemini-2.5-flash-lite",
     "GEMINI_STRONG_MODEL=gemini-2.5-flash",
     "DAILY_SCAN_LIMIT=500",
@@ -3169,8 +3190,11 @@ function buildSupportConfigTemplate() {
     '  publisherName: "TechSpec Scanner",',
     '  supportEmail: "support@your-production-domain.example",',
     `  supportWebsite: "${publicBaseUrl}/support/",`,
+    `  betaGuideUrl: "${publicBaseUrl}/support/beta.html",`,
     `  privacyUrl: "${publicBaseUrl}/support/privacy.html",`,
     `  termsUrl: "${publicBaseUrl}/support/terms.html",`,
+    `  legalUrl: "${publicBaseUrl}/support/legal.html",`,
+    `  feedbackUrl: "${publicBaseUrl}/support/feedback.html",`,
     `  publicationDate: "${today}"`,
     "};"
   ].join("\n");
@@ -4281,6 +4305,26 @@ function formatResultText(result, source) {
     "",
     `Next photo: ${result.recommendedNextPhoto || "Not provided"}`
   ].join("\n");
+}
+
+function buildResultFeedbackUrl() {
+  const result = latestResult?.result || {};
+  const confidence = Math.round(Number(result.confidence || 0) * 100);
+  const params = new URLSearchParams({
+    category: "wrong-result",
+    page: "scan result",
+    message: [
+      `Scan ID: ${latestResult?.scanId || "not assigned"}`,
+      `Component shown: ${result.componentName || "unknown"}`,
+      `Category: ${result.detectedCategory || result.category || "unknown"}`,
+      `Confidence: ${confidence}%`,
+      `Source: ${latestResult?.source || "unknown"}`,
+      `Project: ${latestResult?.projectName || "General"}`,
+      "",
+      "What felt wrong, confusing, or useful?"
+    ].join("\n")
+  });
+  return `/support/feedback.html?${params.toString()}`;
 }
 
 function formatTextList(label, items) {
