@@ -10,7 +10,7 @@ const usageFile = path.join(dataDir, "usage.json");
 const feedbackFile = path.join(dataDir, "feedback.json");
 loadEnv(path.join(root, ".env"));
 
-const SERVER_VERSION = "20260601-1";
+const SERVER_VERSION = "20260601-2";
 const SERVER_STARTED_AT = new Date().toISOString();
 const PORT = Number(process.env.PORT || 3000);
 const APP_MODE = normalizeAppMode(process.env.APP_MODE);
@@ -676,11 +676,26 @@ function sendStaticFile(filePath, res) {
 
     res.writeHead(200, {
       ...securityHeaders(),
+      ...staticFileHeaders(filePath),
       "Content-Type": mimeTypes[path.extname(filePath)] || "application/octet-stream",
       "Cache-Control": "no-store"
     });
     res.end(content);
   });
+}
+
+function staticFileHeaders(filePath) {
+  const relativePath = path.relative(publicDir, filePath).replace(/\\/g, "/");
+  const privateSupportPages = new Set([
+    "support/admin-feedback.html",
+    "support/beta.html",
+    "support/feedback.html"
+  ]);
+
+  if (!privateSupportPages.has(relativePath)) return {};
+  return {
+    "X-Robots-Tag": "noindex, nofollow"
+  };
 }
 
 function readJsonBody(req, limitBytes) {

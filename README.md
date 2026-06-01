@@ -114,6 +114,16 @@ For a private beta, set `BETA_ACCESS_CODE` on the backend before sharing the hos
 
 Set `FEEDBACK_ADMIN_CODE` to an owner-only value before relying on hosted beta feedback. It protects the feedback export endpoint at `/api/feedback/export`. Do not share that admin code with testers.
 
+The owner feedback dashboard is available at `/support/admin-feedback.html`. It can load feedback, filter entries, export JSON/CSV, delete individual entries, and show hosted beta health.
+
+For a local server/support/feedback smoke test, run:
+
+```text
+npm run smoke
+```
+
+See `docs/beta-feedback-operations.md` for the operating routine during private beta testing.
+
 ## Quick Checks
 
 Check that the backend is running:

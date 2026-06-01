@@ -193,6 +193,14 @@ Enter `FEEDBACK_ADMIN_CODE`, load the entries, then download JSON or CSV. Do not
 
 The admin page can also delete individual feedback entries. Use this for test spam, duplicate entries, or a tester deletion request. Deletion is permanent for the file-based beta store.
 
+The admin page also shows beta health, including backend status, Gemini configuration, beta access state, current usage counters, and release preflight warnings.
+
+Before pushing server or feedback changes, run the local smoke test:
+
+```text
+npm run smoke
+```
+
 ## Important Beta Limitation
 
 The current file-based feedback and usage storage is fine for early testing, but production should use persistent storage. If the host has an ephemeral filesystem, `.data/feedback.json` and `.data/usage.json` may not survive redeploys.

@@ -4,7 +4,8 @@
   "private": true,
   "description": "Mobile web app for identifying mechanical components from iPhone camera photos.",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "smoke": "node scripts/smoke-test.js"
   },
   "engines": {
     "node": ">=18"
