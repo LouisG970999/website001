@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 
 const root = path.join(__dirname, "..");
-const port = Number(process.env.SMOKE_TEST_PORT || 3199);
+const port = Number(process.env.SMOKE_TEST_PORT || 31_000 + Math.floor(Math.random() * 4_000));
 const baseUrl = `http://127.0.0.1:${port}`;
 const betaCode = "smoke-beta-code";
 const adminCode = "smoke-admin-code";

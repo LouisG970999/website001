@@ -10,11 +10,12 @@ const readinessKey = "component-scanner-readiness-v1";
 const installIdKey = "component-scanner-install-id-v1";
 const safetyAckKey = "component-scanner-safety-ack-v1";
 const betaAccessCodeKey = "techspec-beta-access-code-v1";
-const appBuildVersion = "20260601-2";
+const appBuildVersion = "20260601-3";
 const maxHistoryItems = 8;
 const maxDatabaseMatches = 4;
 const maxTestLogItems = 200;
 const minimumUsefulImageSide = 900;
+let loadingHelpTimer = null;
 
 const slotOrder = ["overview", "markings", "side", "scale"];
 const slotChecklistMap = {
@@ -240,6 +241,7 @@ const translations = {
     readyFirstScan: "Ready for first scan",
     readyFirstScanHelp: "After analysis, the result appears here with confidence, visible clues, and the next best photo to take.",
     inspectingImage: "Inspecting image...",
+    loadingColdStartHelp: "Still working. The hosted beta can need a little longer after being inactive.",
     confidence: "confidence",
     confidenceExplanation: "Confidence explanation",
     confidenceHigh: "Strong identification. Still verify dimensions, markings, and fit before use.",
@@ -694,6 +696,7 @@ const translations = {
     readyFirstScan: "Bereit fuer den ersten Scan",
     readyFirstScanHelp: "Nach der Analyse erscheint hier das Ergebnis mit Sicherheit, sichtbaren Hinweisen und dem naechsten Foto.",
     inspectingImage: "Bild wird geprueft...",
+    loadingColdStartHelp: "Laeuft noch. Die gehostete Beta kann nach Inaktivitaet etwas laenger brauchen.",
     confidence: "Sicherheit",
     confidenceExplanation: "Sicherheit erklaert",
     confidenceHigh: "Starke Erkennung. Masse, Markierungen und Passung trotzdem vor Verwendung pruefen.",
@@ -1150,6 +1153,7 @@ translations.fr = {
   readyFirstScan: "Pret pour le premier scan",
   readyFirstScanHelp: "Apres analyse, le resultat apparait ici avec confiance, indices visibles et prochaine photo utile.",
   inspectingImage: "Inspection de l'image...",
+  loadingColdStartHelp: "Analyse toujours en cours. La beta hebergee peut prendre un peu plus de temps apres une periode d'inactivite.",
   languageTitle: "Langue",
   languageHelp: "Choisir la langue de l'interface et du resultat IA.",
   themeTitle: "Apparence",
@@ -1560,6 +1564,7 @@ translations.es = {
   readyFirstScan: "Listo para el primer scan",
   readyFirstScanHelp: "Despues del analisis, el resultado aparece aqui con confianza, pistas visibles y la siguiente foto recomendada.",
   inspectingImage: "Inspeccionando imagen...",
+  loadingColdStartHelp: "Sigue trabajando. La beta alojada puede tardar un poco mas despues de estar inactiva.",
   languageTitle: "Idioma",
   languageHelp: "Elige el idioma de la interfaz y del resultado de IA.",
   themeTitle: "Apariencia",
@@ -1932,6 +1937,7 @@ const elements = {
   scanQualityList: document.querySelector("#scanQualityList"),
   emptyState: document.querySelector("#emptyState"),
   loadingState: document.querySelector("#loadingState"),
+  loadingHelp: document.querySelector("#loadingHelp"),
   resultCard: document.querySelector("#resultCard"),
   errorBox: document.querySelector("#errorBox"),
   copyResultBtn: document.querySelector("#copyResultBtn"),
@@ -5514,9 +5520,15 @@ function escapeHtml(value) {
 function setLoading(isLoading) {
   elements.analyzeBtn.disabled = isLoading || !preparedImages.length;
   elements.loadingState.classList.toggle("is-hidden", !isLoading);
+  window.clearTimeout(loadingHelpTimer);
+  loadingHelpTimer = null;
+  elements.loadingHelp?.classList.add("is-hidden");
   if (isLoading) {
     elements.emptyState.classList.add("is-hidden");
     elements.resultCard.classList.add("is-hidden");
+    loadingHelpTimer = window.setTimeout(() => {
+      elements.loadingHelp?.classList.remove("is-hidden");
+    }, 8000);
   } else if (latestResult) {
     elements.resultCard.classList.remove("is-hidden");
   }
