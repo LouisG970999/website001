@@ -1,6 +1,8 @@
 (function () {
   const form = document.querySelector("#feedbackForm");
   const status = document.querySelector("#feedbackStatus");
+  const submitButton = form?.querySelector("button[type='submit']");
+  const successActions = document.querySelector("#feedbackSuccessActions");
   if (!form || !status) return;
 
   function getStoredBetaCode() {
@@ -62,10 +64,13 @@
 
   form.addEventListener("submit", async event => {
     event.preventDefault();
+    successActions?.classList.add("is-hidden");
     status.textContent = "Sending feedback...";
+    if (submitButton) submitButton.disabled = true;
     const betaCode = (betaCodeInput?.value || getStoredBetaCode()).trim();
     if (!betaCode) {
       status.textContent = "Please enter the beta access code first.";
+      if (submitButton) submitButton.disabled = false;
       betaCodeInput?.focus();
       return;
     }
@@ -97,11 +102,14 @@
       form.reset();
       if (betaCodeInput) betaCodeInput.value = betaCode;
       status.textContent = "Feedback sent. Thank you.";
+      successActions?.classList.remove("is-hidden");
     } catch (error) {
       const message = error.message || "Feedback could not be sent.";
       status.textContent = message.includes("BETA_ACCESS") || message.includes("INVALID")
         ? "The beta access code was not accepted. Check the code and try again."
         : `${message} You can also email support from the support page.`;
+    } finally {
+      if (submitButton) submitButton.disabled = false;
     }
   });
 }());

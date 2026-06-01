@@ -294,6 +294,22 @@ code {
   color: #fff;
 }
 
+.primary-action:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.feedback-success-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.feedback-success-actions .subtle {
+  background: #fff;
+}
+
 .is-hidden {
   display: none !important;
 }
