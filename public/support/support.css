@@ -318,6 +318,69 @@ code {
   justify-content: flex-end;
 }
 
+.feedback-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 12px 0 14px;
+}
+
+.feedback-stat-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fbff;
+  padding: 12px;
+}
+
+.feedback-stat-card span,
+.feedback-stat-card strong {
+  display: block;
+}
+
+.feedback-stat-card span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.feedback-stat-card strong {
+  margin-top: 4px;
+  font-size: 18px;
+}
+
+.admin-feedback-filters {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(150px, 0.45fr) minmax(120px, 0.35fr) auto;
+  gap: 10px;
+  align-items: end;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(248, 251, 255, 0.82);
+  padding: 12px;
+  margin-bottom: 14px;
+}
+
+.admin-feedback-filters label {
+  display: grid;
+  gap: 6px;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.admin-feedback-filters input,
+.admin-feedback-filters select {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  padding: 8px 10px;
+}
+
 .feedback-entry-list {
   display: grid;
   gap: 12px;
@@ -401,6 +464,11 @@ code {
 
   .admin-feedback-header {
     display: grid;
+  }
+
+  .feedback-stats,
+  .admin-feedback-filters {
+    grid-template-columns: 1fr;
   }
 
   .admin-feedback-actions {

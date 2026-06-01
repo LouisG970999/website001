@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#eaf4ff">
+    <meta name="robots" content="noindex,nofollow">
     <title>TechSpec Scanner Feedback Admin</title>
     <link rel="icon" href="/icons/icon-192.png" type="image/png">
     <link rel="stylesheet" href="/support/support.css">
@@ -59,6 +60,32 @@
               <button id="downloadFeedbackJsonBtn" class="button-link" type="button">Download JSON</button>
               <button id="downloadFeedbackCsvBtn" class="button-link" type="button">Download CSV</button>
             </div>
+          </div>
+          <div id="adminFeedbackStats" class="feedback-stats"></div>
+          <div class="admin-feedback-filters" aria-label="Feedback filters">
+            <label>
+              Search
+              <input id="feedbackSearchInput" type="search" placeholder="Search message, page, contact, install ID">
+            </label>
+            <label>
+              Category
+              <select id="feedbackCategoryFilter">
+                <option value="">All categories</option>
+              </select>
+            </label>
+            <label>
+              Rating
+              <select id="feedbackRatingFilter">
+                <option value="">All ratings</option>
+                <option value="5">5</option>
+                <option value="4">4</option>
+                <option value="3">3</option>
+                <option value="2">2</option>
+                <option value="1">1</option>
+                <option value="none">No rating</option>
+              </select>
+            </label>
+            <button id="clearFeedbackFiltersBtn" class="button-link" type="button">Clear filters</button>
           </div>
           <div id="adminFeedbackList" class="feedback-entry-list"></div>
         </article>

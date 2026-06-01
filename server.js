@@ -1113,6 +1113,7 @@ function matchConfigString(text, key) {
 function sendJson(res, status, payload) {
   res.writeHead(status, {
     ...securityHeaders(),
+    "Cache-Control": "no-store",
     "Content-Type": "application/json; charset=utf-8"
   });
   res.end(JSON.stringify(payload));

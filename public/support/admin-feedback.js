@@ -4,7 +4,12 @@
   const status = document.querySelector("#adminFeedbackStatus");
   const resultsPanel = document.querySelector("#adminFeedbackResults");
   const summary = document.querySelector("#adminFeedbackSummary");
+  const stats = document.querySelector("#adminFeedbackStats");
   const list = document.querySelector("#adminFeedbackList");
+  const searchInput = document.querySelector("#feedbackSearchInput");
+  const categoryFilter = document.querySelector("#feedbackCategoryFilter");
+  const ratingFilter = document.querySelector("#feedbackRatingFilter");
+  const clearFiltersBtn = document.querySelector("#clearFeedbackFiltersBtn");
   const downloadJsonBtn = document.querySelector("#downloadFeedbackJsonBtn");
   const downloadCsvBtn = document.querySelector("#downloadFeedbackCsvBtn");
   let latestExport = null;
@@ -32,6 +37,17 @@
       `techspec-feedback-${dateStamp()}.csv`,
       "text/csv;charset=utf-8"
     );
+  });
+
+  for (const control of [searchInput, categoryFilter, ratingFilter]) {
+    control?.addEventListener("input", () => renderFeedback(latestExport));
+  }
+
+  clearFiltersBtn?.addEventListener("click", () => {
+    if (searchInput) searchInput.value = "";
+    if (categoryFilter) categoryFilter.value = "";
+    if (ratingFilter) ratingFilter.value = "";
+    renderFeedback(latestExport);
   });
 
   async function loadFeedback() {
@@ -65,20 +81,24 @@
   }
 
   function renderFeedback(exportPayload) {
+    if (!exportPayload) return;
     const entries = Array.isArray(exportPayload.feedback) ? exportPayload.feedback : [];
-    summary.textContent = `${entries.length} entries. Export generated ${formatDate(exportPayload.generatedAt)}.`;
+    populateCategoryFilter(entries);
+    renderStats(entries);
+    const filteredEntries = filterEntries(entries);
+    summary.textContent = `${filteredEntries.length} of ${entries.length} entries shown. Export generated ${formatDate(exportPayload.generatedAt)}.`;
     list.replaceChildren();
 
-    if (!entries.length) {
+    if (!filteredEntries.length) {
       const empty = document.createElement("p");
       empty.className = "small-note";
-      empty.textContent = "No feedback entries have been stored yet.";
+      empty.textContent = entries.length ? "No feedback entries match the current filters." : "No feedback entries have been stored yet.";
       list.appendChild(empty);
       resultsPanel.classList.remove("is-hidden");
       return;
     }
 
-    for (const entry of entries.slice().reverse()) {
+    for (const entry of filteredEntries.slice().reverse()) {
       const article = document.createElement("article");
       article.className = "feedback-entry";
       article.innerHTML = `
@@ -100,6 +120,71 @@
     }
 
     resultsPanel.classList.remove("is-hidden");
+  }
+
+  function populateCategoryFilter(entries) {
+    if (!categoryFilter) return;
+    const selected = categoryFilter.value;
+    const categories = [...new Set(entries.map(entry => entry.category || "general"))].sort((a, b) => a.localeCompare(b));
+    categoryFilter.replaceChildren(new Option("All categories", ""));
+    for (const category of categories) {
+      categoryFilter.appendChild(new Option(category, category));
+    }
+    if (categories.includes(selected)) categoryFilter.value = selected;
+  }
+
+  function renderStats(entries) {
+    if (!stats) return;
+    const ratings = entries.map(entry => Number(entry.rating)).filter(Number.isFinite);
+    const averageRating = ratings.length
+      ? `${(ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length).toFixed(1)} / 5`
+      : "No ratings yet";
+    const categories = new Map();
+    for (const entry of entries) {
+      const category = entry.category || "general";
+      categories.set(category, (categories.get(category) || 0) + 1);
+    }
+    const topCategory = [...categories.entries()].sort((a, b) => b[1] - a[1])[0];
+    const contactCount = entries.filter(entry => entry.contact).length;
+
+    stats.replaceChildren(
+      statCard("Total", String(entries.length)),
+      statCard("Average rating", averageRating),
+      statCard("Top category", topCategory ? `${topCategory[0]} (${topCategory[1]})` : "None"),
+      statCard("With contact", String(contactCount))
+    );
+  }
+
+  function statCard(label, value) {
+    const card = document.createElement("div");
+    card.className = "feedback-stat-card";
+    card.innerHTML = `<span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong>`;
+    return card;
+  }
+
+  function filterEntries(entries) {
+    const query = (searchInput?.value || "").trim().toLowerCase();
+    const category = categoryFilter?.value || "";
+    const rating = ratingFilter?.value || "";
+
+    return entries.filter(entry => {
+      if (category && (entry.category || "general") !== category) return false;
+      const entryRating = entry.rating ? String(entry.rating) : "none";
+      if (rating && entryRating !== rating) return false;
+      if (!query) return true;
+      const haystack = [
+        entry.id,
+        entry.category,
+        entry.page,
+        entry.message,
+        entry.contact,
+        entry.installId,
+        entry.appVersion,
+        entry.screen,
+        entry.userAgent
+      ].join(" ").toLowerCase();
+      return haystack.includes(query);
+    });
   }
 
   function buildCsv(entries) {
