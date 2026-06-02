@@ -100,6 +100,8 @@ Then test locally:
 
 `/api/preflight` should be treated as the quick release gate. It must not expose secrets. Before public release, the critical checks should pass:
 
+Support URLs in `public/support/support-config.js` may use local paths such as `/support/privacy.html` during beta hosting. When `PUBLIC_BASE_URL` is set to the hosted HTTPS domain, the backend resolves those local paths into full public URLs for preflight checks.
+
 - Gemini API key configured.
 - `APP_MODE=production` so developer-only tools stay hidden in the public app.
 - `PUBLIC_BASE_URL` set to the final HTTPS production URL.

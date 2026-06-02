@@ -33,7 +33,7 @@ async function runSmokeTest() {
       ...process.env,
       PORT: String(port),
       APP_MODE: "production",
-      PUBLIC_BASE_URL: baseUrl,
+      PUBLIC_BASE_URL: "https://techspec-smoke.example",
       BETA_ACCESS_CODE: betaCode,
       FEEDBACK_ADMIN_CODE: adminCode,
       GEMINI_API_KEY: process.env.GEMINI_API_KEY || "smoke-test-placeholder"
@@ -62,6 +62,9 @@ async function main() {
   const preflight = await getJson("/api/preflight");
   assert(Array.isArray(preflight.checks), "Preflight checks are missing.");
   assert(preflight.support?.pagesAvailable === true, "Support pages are not all available.");
+  assert(preflight.support?.privacyUrlConfigured === true, "Privacy URL should resolve from PUBLIC_BASE_URL.");
+  assert(preflight.support?.termsUrlConfigured === true, "Terms URL should resolve from PUBLIC_BASE_URL.");
+  assert(preflight.support?.websiteConfigured === true, "Support URL should resolve from PUBLIC_BASE_URL.");
 
   const adminPage = await fetch(`${baseUrl}/support/admin-feedback.html`);
   assert(adminPage.status === 200, "Admin feedback page did not load.");

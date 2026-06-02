@@ -10,7 +10,7 @@ const usageFile = path.join(dataDir, "usage.json");
 const feedbackFile = path.join(dataDir, "feedback.json");
 loadEnv(path.join(root, ".env"));
 
-const SERVER_VERSION = "20260602-1";
+const SERVER_VERSION = "20260602-2";
 const SERVER_STARTED_AT = new Date().toISOString();
 const PORT = Number(process.env.PORT || 3000);
 const APP_MODE = normalizeAppMode(process.env.APP_MODE);
@@ -1124,6 +1124,7 @@ function getPreflightSnapshot(req) {
 }
 
 function readSupportConfigSnapshot() {
+  const publicBaseUrl = String(process.env.PUBLIC_BASE_URL || "").trim();
   const configPath = path.join(publicDir, "support", "support-config.js");
   const supportIndexPath = path.join(publicDir, "support", "index.html");
   const betaPath = path.join(publicDir, "support", "beta.html");
@@ -1136,28 +1137,51 @@ function readSupportConfigSnapshot() {
   const supportWebsite = matchConfigString(text, "supportWebsite");
   const privacyUrl = matchConfigString(text, "privacyUrl");
   const termsUrl = matchConfigString(text, "termsUrl");
+  const resolvedSupportWebsite = resolveConfiguredUrl(supportWebsite, publicBaseUrl);
+  const resolvedPrivacyUrl = resolveConfiguredUrl(privacyUrl, publicBaseUrl);
+  const resolvedTermsUrl = resolveConfiguredUrl(termsUrl, publicBaseUrl);
   const publicationDate = matchConfigString(text, "publicationDate");
 
   return {
     emailConfigured: Boolean(supportEmail && !/support@example\.com/i.test(supportEmail)),
-    websiteConfigured: Boolean(supportWebsite && /^https:\/\//i.test(supportWebsite)),
-    privacyUrlConfigured: Boolean(privacyUrl && /^https:\/\//i.test(privacyUrl)),
-    termsUrlConfigured: Boolean(termsUrl && /^https:\/\//i.test(termsUrl)),
+    websiteConfigured: Boolean(resolvedSupportWebsite),
+    privacyUrlConfigured: Boolean(resolvedPrivacyUrl),
+    termsUrlConfigured: Boolean(resolvedTermsUrl),
     privacyPublished: Boolean(publicationDate && !/^draft$/i.test(publicationDate)),
     pagesAvailable: fs.existsSync(supportIndexPath) && fs.existsSync(betaPath) && fs.existsSync(privacyPath) && fs.existsSync(termsPath) && fs.existsSync(legalPath) && fs.existsSync(feedbackPath),
+    resolvedUrls: {
+      supportWebsite: resolvedSupportWebsite || null,
+      privacyUrl: resolvedPrivacyUrl || null,
+      termsUrl: resolvedTermsUrl || null
+    },
     placeholders: {
       supportEmail: !supportEmail || /support@example\.com/i.test(supportEmail),
-      supportWebsite: !supportWebsite || !/^https:\/\//i.test(supportWebsite),
-      privacyUrl: !privacyUrl || !/^https:\/\//i.test(privacyUrl),
-      termsUrl: !termsUrl || !/^https:\/\//i.test(termsUrl),
+      supportWebsite: !resolvedSupportWebsite,
+      privacyUrl: !resolvedPrivacyUrl,
+      termsUrl: !resolvedTermsUrl,
       publicationDate: !publicationDate || /^draft$/i.test(publicationDate)
     }
   };
 }
 
+function resolveConfiguredUrl(value, publicBaseUrl) {
+  const raw = String(value || "").trim();
+  if (/^https:\/\//i.test(raw)) return raw;
+  if (!raw.startsWith("/") || !/^https:\/\//i.test(publicBaseUrl)) return "";
+  try {
+    return new URL(raw, publicBaseUrl).toString();
+  } catch {
+    return "";
+  }
+}
+
 function matchConfigString(text, key) {
-  const match = text.match(new RegExp(`${key}\\\\s*:\\\\s*["']([^"']*)["']`, "i"));
+  const match = text.match(new RegExp(`${escapeRegExp(key)}\\s*:\\s*["']([^"']*)["']`, "i"));
   return match ? match[1].trim() : "";
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function sendJson(res, status, payload) {
