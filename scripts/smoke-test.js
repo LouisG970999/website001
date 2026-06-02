@@ -1,38 +1,19 @@
 const { spawn } = require("child_process");
 const fs = require("fs");
+const net = require("net");
 const path = require("path");
 
 const root = path.join(__dirname, "..");
-const port = Number(process.env.SMOKE_TEST_PORT || 31_000 + Math.floor(Math.random() * 4_000));
-const baseUrl = `http://127.0.0.1:${port}`;
 const betaCode = "smoke-beta-code";
 const adminCode = "smoke-admin-code";
 const feedbackFile = path.join(root, ".data", "feedback.json");
 const originalFeedback = readExistingFeedback();
-
-const child = spawn(process.execPath, ["server.js"], {
-  cwd: root,
-  env: {
-    ...process.env,
-    PORT: String(port),
-    APP_MODE: "production",
-    PUBLIC_BASE_URL: baseUrl,
-    BETA_ACCESS_CODE: betaCode,
-    FEEDBACK_ADMIN_CODE: adminCode,
-    GEMINI_API_KEY: process.env.GEMINI_API_KEY || "smoke-test-placeholder"
-  },
-  stdio: ["ignore", "pipe", "pipe"]
-});
-
+let port = 0;
+let baseUrl = "";
+let child = null;
 let output = "";
-child.stdout.on("data", chunk => {
-  output += chunk.toString();
-});
-child.stderr.on("data", chunk => {
-  output += chunk.toString();
-});
 
-main()
+runSmokeTest()
   .then(() => {
     console.log("Smoke test passed.");
     cleanup(0);
@@ -42,6 +23,33 @@ main()
     if (output.trim()) console.error(output.trim());
     cleanup(1);
   });
+
+async function runSmokeTest() {
+  port = await resolvePort();
+  baseUrl = `http://127.0.0.1:${port}`;
+  child = spawn(process.execPath, ["server.js"], {
+    cwd: root,
+    env: {
+      ...process.env,
+      PORT: String(port),
+      APP_MODE: "production",
+      PUBLIC_BASE_URL: baseUrl,
+      BETA_ACCESS_CODE: betaCode,
+      FEEDBACK_ADMIN_CODE: adminCode,
+      GEMINI_API_KEY: process.env.GEMINI_API_KEY || "smoke-test-placeholder"
+    },
+    stdio: ["ignore", "pipe", "pipe"]
+  });
+
+  child.stdout.on("data", chunk => {
+    output += chunk.toString();
+  });
+  child.stderr.on("data", chunk => {
+    output += chunk.toString();
+  });
+
+  await main();
+}
 
 async function main() {
   await waitForServer();
@@ -61,6 +69,9 @@ async function main() {
     /noindex/i.test(adminPage.headers.get("x-robots-tag") || ""),
     "Admin feedback page is missing noindex X-Robots-Tag."
   );
+  const adminPageText = await adminPage.text();
+  assert(adminPageText.includes("feedbackTriagePanel"), "Admin feedback page is missing the triage panel.");
+  assert(adminPageText.includes("copyFeedbackTriageBtn"), "Admin feedback page is missing the copy triage action.");
 
   const appShell = await fetch(`${baseUrl}/`);
   assert(appShell.status === 200, "App shell did not load.");
@@ -108,6 +119,27 @@ async function main() {
     { "X-TechSpec-Admin-Code": adminCode }
   );
   assert(deleted.status === 200 && deleted.body?.deletedId === sentFeedback.body.id, "Feedback deletion failed.");
+}
+
+function resolvePort() {
+  const requested = Number(process.env.SMOKE_TEST_PORT || 0);
+  if (requested > 0) return Promise.resolve(requested);
+
+  return new Promise((resolve, reject) => {
+    const probe = net.createServer();
+    probe.on("error", reject);
+    probe.listen(0, "127.0.0.1", () => {
+      const address = probe.address();
+      const selectedPort = typeof address === "object" && address ? address.port : 0;
+      probe.close(() => {
+        if (!selectedPort) {
+          reject(new Error("Could not reserve a smoke-test port."));
+          return;
+        }
+        resolve(selectedPort);
+      });
+    });
+  });
 }
 
 async function waitForServer() {
@@ -170,7 +202,7 @@ function restoreFeedback() {
 
 function cleanup(exitCode) {
   restoreFeedback();
-  child.kill();
+  if (child) child.kill();
   setTimeout(() => process.exit(exitCode), 100);
 }
 

@@ -365,6 +365,36 @@ code {
   font-size: 18px;
 }
 
+.feedback-triage-panel {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0 0 14px;
+}
+
+.feedback-triage-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fbff;
+  padding: 12px;
+}
+
+.feedback-triage-card h3 {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.feedback-triage-card ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.feedback-triage-card li + li {
+  margin-top: 5px;
+}
+
 .admin-feedback-filters {
   display: grid;
   grid-template-columns: minmax(180px, 1fr) minmax(150px, 0.45fr) minmax(120px, 0.35fr) auto;
@@ -549,6 +579,7 @@ code {
 
   .feedback-stats,
   .admin-feedback-filters,
+  .feedback-triage-panel,
   .admin-preflight-list {
     grid-template-columns: 1fr;
   }

@@ -6,6 +6,7 @@
   const summary = document.querySelector("#adminFeedbackSummary");
   const stats = document.querySelector("#adminFeedbackStats");
   const list = document.querySelector("#adminFeedbackList");
+  const triagePanel = document.querySelector("#feedbackTriagePanel");
   const healthSummary = document.querySelector("#adminHealthSummary");
   const healthStats = document.querySelector("#adminHealthStats");
   const preflightList = document.querySelector("#adminPreflightList");
@@ -14,6 +15,8 @@
   const categoryFilter = document.querySelector("#feedbackCategoryFilter");
   const ratingFilter = document.querySelector("#feedbackRatingFilter");
   const clearFiltersBtn = document.querySelector("#clearFeedbackFiltersBtn");
+  const copyTriageBtn = document.querySelector("#copyFeedbackTriageBtn");
+  const downloadTriageBtn = document.querySelector("#downloadFeedbackTriageBtn");
   const downloadJsonBtn = document.querySelector("#downloadFeedbackJsonBtn");
   const downloadCsvBtn = document.querySelector("#downloadFeedbackCsvBtn");
   let latestExport = null;
@@ -50,6 +53,27 @@
       buildCsv(latestExport.feedback || []),
       `techspec-feedback-${dateStamp()}.csv`,
       "text/csv;charset=utf-8"
+    );
+  });
+
+  copyTriageBtn?.addEventListener("click", async () => {
+    if (!latestExport) return;
+    const text = buildTriageText(latestExport.feedback || []);
+    try {
+      await navigator.clipboard.writeText(text);
+      status.textContent = "Triage summary copied.";
+    } catch {
+      downloadText(text, `techspec-feedback-triage-${dateStamp()}.txt`, "text/plain;charset=utf-8");
+      status.textContent = "Clipboard unavailable. Triage summary downloaded instead.";
+    }
+  });
+
+  downloadTriageBtn?.addEventListener("click", () => {
+    if (!latestExport) return;
+    downloadText(
+      buildTriageText(latestExport.feedback || []),
+      `techspec-feedback-triage-${dateStamp()}.txt`,
+      "text/plain;charset=utf-8"
     );
   });
 
@@ -180,6 +204,7 @@
     const entries = Array.isArray(exportPayload.feedback) ? exportPayload.feedback : [];
     populateCategoryFilter(entries);
     renderStats(entries);
+    renderTriage(entries);
     const filteredEntries = filterEntries(entries);
     summary.textContent = `${filteredEntries.length} of ${entries.length} entries shown. Export generated ${formatDate(exportPayload.generatedAt)}.`;
     list.replaceChildren();
@@ -252,6 +277,118 @@
       statCard("Top category", topCategory ? `${topCategory[0]} (${topCategory[1]})` : "None"),
       statCard("With contact", String(contactCount))
     );
+  }
+
+  function renderTriage(entries) {
+    if (!triagePanel) return;
+    const triage = buildTriage(entries);
+    triagePanel.replaceChildren(
+      triageColumn("Needs attention", triage.needsAttention),
+      triageColumn("Repeated categories", triage.categoryLines),
+      triageColumn("Pages mentioned", triage.pageLines)
+    );
+  }
+
+  function triageColumn(title, lines) {
+    const section = document.createElement("section");
+    section.className = "feedback-triage-card";
+    const h3 = document.createElement("h3");
+    h3.textContent = title;
+    const listElement = document.createElement("ul");
+    const values = lines.length ? lines : ["No signal yet"];
+    for (const line of values.slice(0, 6)) {
+      const item = document.createElement("li");
+      item.textContent = line;
+      listElement.appendChild(item);
+    }
+    section.append(h3, listElement);
+    return section;
+  }
+
+  function buildTriage(entries) {
+    const normalized = Array.isArray(entries) ? entries : [];
+    const categoryCounts = countBy(normalized, entry => entry.category || "general");
+    const pageCounts = countBy(normalized, entry => entry.page || "not provided");
+    const lowRatings = normalized.filter(entry => Number(entry.rating) > 0 && Number(entry.rating) <= 2);
+    const bugs = normalized.filter(entry => /bug|crash|error|broken|does not|did not|wrong|uncertain/i.test(`${entry.category || ""} ${entry.message || ""}`));
+    const contactCount = normalized.filter(entry => entry.contact).length;
+    const ratingValues = normalized.map(entry => Number(entry.rating)).filter(Number.isFinite);
+    const averageRating = ratingValues.length
+      ? (ratingValues.reduce((sum, rating) => sum + rating, 0) / ratingValues.length).toFixed(1)
+      : "none";
+
+    return {
+      total: normalized.length,
+      generatedAt: new Date().toISOString(),
+      averageRating,
+      contactCount,
+      lowRatingCount: lowRatings.length,
+      bugSignalCount: bugs.length,
+      needsAttention: [
+        `${lowRatings.length} low-rating entries`,
+        `${bugs.length} bug/wrong-result signals`,
+        `${contactCount} entries with contact email`,
+        averageRating === "none" ? "No ratings collected yet" : `Average rating ${averageRating} / 5`
+      ],
+      categoryLines: topCountLines(categoryCounts),
+      pageLines: topCountLines(pageCounts),
+      lowRatings: lowRatings.slice().reverse().slice(0, 8),
+      bugSignals: bugs.slice().reverse().slice(0, 8)
+    };
+  }
+
+  function buildTriageText(entries) {
+    const triage = buildTriage(entries);
+    const lines = [
+      "TechSpec Scanner Beta Feedback Triage",
+      `Generated: ${formatDate(triage.generatedAt)}`,
+      `Entries: ${triage.total}`,
+      `Average rating: ${triage.averageRating}`,
+      `Low-rating entries: ${triage.lowRatingCount}`,
+      `Bug/wrong-result signals: ${triage.bugSignalCount}`,
+      `Entries with contact email: ${triage.contactCount}`,
+      "",
+      "Repeated categories:",
+      ...prefixLines(triage.categoryLines),
+      "",
+      "Pages mentioned:",
+      ...prefixLines(triage.pageLines),
+      "",
+      "Low-rating entries to review:",
+      ...feedbackLines(triage.lowRatings),
+      "",
+      "Bug/wrong-result signals to review:",
+      ...feedbackLines(triage.bugSignals)
+    ];
+    return lines.join("\n");
+  }
+
+  function countBy(entries, getKey) {
+    const counts = new Map();
+    for (const entry of entries) {
+      const key = String(getKey(entry) || "not provided").trim() || "not provided";
+      counts.set(key, (counts.get(key) || 0) + 1);
+    }
+    return counts;
+  }
+
+  function topCountLines(counts) {
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .slice(0, 6)
+      .map(([label, count]) => `${label}: ${count}`);
+  }
+
+  function prefixLines(lines) {
+    return lines.length ? lines.map(line => `- ${line}`) : ["- No signal yet"];
+  }
+
+  function feedbackLines(entries) {
+    if (!entries.length) return ["- None"];
+    return entries.map(entry => [
+      `- ${entry.createdAt || "unknown date"} | ${entry.category || "general"} | rating ${entry.rating || "none"} | ${entry.page || "not provided"}`,
+      `  ${String(entry.message || "").replace(/\s+/g, " ").trim().slice(0, 220)}`
+    ].join("\n"));
   }
 
   function statCard(label, value) {
