@@ -34,6 +34,10 @@ async function runSmokeTest() {
       PORT: String(port),
       APP_MODE: "production",
       PUBLIC_BASE_URL: "https://techspec-smoke.example",
+      SUPPORT_EMAIL: "support@techspec-smoke.example",
+      SUPPORT_WEBSITE: "https://techspec-smoke.example/support/",
+      PUBLISHER_NAME: "TechSpec Smoke Publisher",
+      PRIVACY_PUBLICATION_DATE: "2026-06-02",
       BETA_ACCESS_CODE: betaCode,
       FEEDBACK_ADMIN_CODE: adminCode,
       GEMINI_API_KEY: process.env.GEMINI_API_KEY || "smoke-test-placeholder"
@@ -65,6 +69,14 @@ async function main() {
   assert(preflight.support?.privacyUrlConfigured === true, "Privacy URL should resolve from PUBLIC_BASE_URL.");
   assert(preflight.support?.termsUrlConfigured === true, "Terms URL should resolve from PUBLIC_BASE_URL.");
   assert(preflight.support?.websiteConfigured === true, "Support URL should resolve from PUBLIC_BASE_URL.");
+  assert(preflight.support?.emailConfigured === true, "Support email should use the hosted environment override.");
+  assert(preflight.support?.privacyPublished === true, "Privacy publication date should use the hosted environment override.");
+
+  const supportConfig = await fetch(`${baseUrl}/support/support-config.js`);
+  assert(supportConfig.status === 200, "Generated support config did not load.");
+  const supportConfigText = await supportConfig.text();
+  assert(supportConfigText.includes("support@techspec-smoke.example"), "Generated support config is missing SUPPORT_EMAIL.");
+  assert(supportConfigText.includes("TechSpec Smoke Publisher"), "Generated support config is missing PUBLISHER_NAME.");
 
   const adminPage = await fetch(`${baseUrl}/support/admin-feedback.html`);
   assert(adminPage.status === 200, "Admin feedback page did not load.");

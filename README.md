@@ -102,6 +102,8 @@ Update `public/support/support-config.js` before publishing:
 
 Before publishing, replace the placeholder support email, company/name, support URL, privacy URL, terms URL, publication date, and final hosted domain.
 
+Hosted deployments can override support metadata without code edits by setting `SUPPORT_EMAIL`, `SUPPORT_WEBSITE`, `PUBLISHER_NAME`, and `PRIVACY_PUBLICATION_DATE` in the backend environment.
+
 Settings includes a Publishing Pack with reviewer notes, privacy summary, App Store listing copy, production environment template, support config template, release checklist, and backend preflight checks. The preflight endpoint is:
 
 ```text

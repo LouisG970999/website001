@@ -13,6 +13,14 @@ services:
         value: production
       - key: PUBLIC_BASE_URL
         sync: false
+      - key: SUPPORT_EMAIL
+        sync: false
+      - key: SUPPORT_WEBSITE
+        sync: false
+      - key: PUBLISHER_NAME
+        sync: false
+      - key: PRIVACY_PUBLICATION_DATE
+        sync: false
       - key: GEMINI_API_KEY
         sync: false
       - key: BETA_ACCESS_CODE

@@ -102,6 +102,15 @@ Then test locally:
 
 Support URLs in `public/support/support-config.js` may use local paths such as `/support/privacy.html` during beta hosting. When `PUBLIC_BASE_URL` is set to the hosted HTTPS domain, the backend resolves those local paths into full public URLs for preflight checks.
 
+For hosted builds, the backend can also serve `public/support/support-config.js` with environment-specific overrides. Set these in Render when final values are available:
+
+```text
+SUPPORT_EMAIL=your-real-support-email@example.com
+SUPPORT_WEBSITE=https://your-domain.example/support/
+PUBLISHER_NAME=Your legal publisher name
+PRIVACY_PUBLICATION_DATE=2026-06-02
+```
+
 - Gemini API key configured.
 - `APP_MODE=production` so developer-only tools stay hidden in the public app.
 - `PUBLIC_BASE_URL` set to the final HTTPS production URL.

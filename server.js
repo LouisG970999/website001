@@ -10,7 +10,7 @@ const usageFile = path.join(dataDir, "usage.json");
 const feedbackFile = path.join(dataDir, "feedback.json");
 loadEnv(path.join(root, ".env"));
 
-const SERVER_VERSION = "20260602-2";
+const SERVER_VERSION = "20260602-3";
 const SERVER_STARTED_AT = new Date().toISOString();
 const PORT = Number(process.env.PORT || 3000);
 const APP_MODE = normalizeAppMode(process.env.APP_MODE);
@@ -669,6 +669,12 @@ function sendStaticFile(filePath, res) {
     return;
   }
 
+  const relativePath = path.relative(publicDir, filePath).replace(/\\/g, "/");
+  if (relativePath === "support/support-config.js") {
+    sendSupportConfigJs(res);
+    return;
+  }
+
   fs.readFile(filePath, (error, content) => {
     if (error) {
       sendJson(res, 404, { error: "Not found" });
@@ -683,6 +689,15 @@ function sendStaticFile(filePath, res) {
     });
     res.end(content);
   });
+}
+
+function sendSupportConfigJs(res) {
+  res.writeHead(200, {
+    ...securityHeaders(),
+    "Content-Type": "text/javascript; charset=utf-8",
+    "Cache-Control": "no-store"
+  });
+  res.end(`window.TechSpecSupport = ${JSON.stringify(readSupportConfigValues(), null, 2)};\n`);
 }
 
 function staticFileHeaders(filePath) {
@@ -1125,22 +1140,21 @@ function getPreflightSnapshot(req) {
 
 function readSupportConfigSnapshot() {
   const publicBaseUrl = String(process.env.PUBLIC_BASE_URL || "").trim();
-  const configPath = path.join(publicDir, "support", "support-config.js");
   const supportIndexPath = path.join(publicDir, "support", "index.html");
   const betaPath = path.join(publicDir, "support", "beta.html");
   const privacyPath = path.join(publicDir, "support", "privacy.html");
   const termsPath = path.join(publicDir, "support", "terms.html");
   const legalPath = path.join(publicDir, "support", "legal.html");
   const feedbackPath = path.join(publicDir, "support", "feedback.html");
-  const text = fs.existsSync(configPath) ? fs.readFileSync(configPath, "utf8") : "";
-  const supportEmail = matchConfigString(text, "supportEmail");
-  const supportWebsite = matchConfigString(text, "supportWebsite");
-  const privacyUrl = matchConfigString(text, "privacyUrl");
-  const termsUrl = matchConfigString(text, "termsUrl");
+  const config = readSupportConfigValues();
+  const supportEmail = config.supportEmail;
+  const supportWebsite = config.supportWebsite;
+  const privacyUrl = config.privacyUrl;
+  const termsUrl = config.termsUrl;
   const resolvedSupportWebsite = resolveConfiguredUrl(supportWebsite, publicBaseUrl);
   const resolvedPrivacyUrl = resolveConfiguredUrl(privacyUrl, publicBaseUrl);
   const resolvedTermsUrl = resolveConfiguredUrl(termsUrl, publicBaseUrl);
-  const publicationDate = matchConfigString(text, "publicationDate");
+  const publicationDate = config.publicationDate;
 
   return {
     emailConfigured: Boolean(supportEmail && !/support@example\.com/i.test(supportEmail)),
@@ -1162,6 +1176,44 @@ function readSupportConfigSnapshot() {
       publicationDate: !publicationDate || /^draft$/i.test(publicationDate)
     }
   };
+}
+
+function readSupportConfigValues() {
+  const publicBaseUrl = String(process.env.PUBLIC_BASE_URL || "").trim();
+  const configPath = path.join(publicDir, "support", "support-config.js");
+  const text = fs.existsSync(configPath) ? fs.readFileSync(configPath, "utf8") : "";
+  const fallback = {
+    appName: "TechSpec Scanner",
+    publisherName: "TechSpec Scanner",
+    supportEmail: "support@example.com",
+    supportWebsite: "/support/",
+    betaGuideUrl: "/support/beta.html",
+    privacyUrl: "/support/privacy.html",
+    termsUrl: "/support/terms.html",
+    legalUrl: "/support/legal.html",
+    feedbackUrl: "/support/feedback.html",
+    publicationDate: "Draft"
+  };
+  const values = {};
+  for (const key of Object.keys(fallback)) {
+    values[key] = matchConfigString(text, key) || fallback[key];
+  }
+
+  const envOverrides = {
+    publisherName: process.env.PUBLISHER_NAME,
+    supportEmail: process.env.SUPPORT_EMAIL,
+    supportWebsite: process.env.SUPPORT_WEBSITE,
+    publicationDate: process.env.PRIVACY_PUBLICATION_DATE || process.env.SUPPORT_PUBLICATION_DATE
+  };
+  for (const [key, value] of Object.entries(envOverrides)) {
+    if (String(value || "").trim()) values[key] = String(value).trim();
+  }
+
+  for (const key of ["supportWebsite", "betaGuideUrl", "privacyUrl", "termsUrl", "legalUrl", "feedbackUrl"]) {
+    values[key] = resolveConfiguredUrl(values[key], publicBaseUrl) || values[key];
+  }
+
+  return values;
 }
 
 function resolveConfiguredUrl(value, publicBaseUrl) {
