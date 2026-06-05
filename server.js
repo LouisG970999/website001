@@ -10,7 +10,7 @@ const usageFile = path.join(dataDir, "usage.json");
 const feedbackFile = path.join(dataDir, "feedback.json");
 loadEnv(path.join(root, ".env"));
 
-const SERVER_VERSION = "20260605-2";
+const SERVER_VERSION = "20260605-3";
 const SERVER_STARTED_AT = new Date().toISOString();
 const PORT = Number(process.env.PORT || 3000);
 const APP_MODE = normalizeAppMode(process.env.APP_MODE);

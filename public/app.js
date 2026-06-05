@@ -10,7 +10,7 @@ const readinessKey = "component-scanner-readiness-v1";
 const installIdKey = "component-scanner-install-id-v1";
 const safetyAckKey = "component-scanner-safety-ack-v1";
 const betaAccessCodeKey = "techspec-beta-access-code-v1";
-const appBuildVersion = "20260601-3";
+const appBuildVersion = "20260605-3";
 const maxHistoryItems = 8;
 const maxDatabaseMatches = 4;
 const maxTestLogItems = 200;
@@ -427,6 +427,8 @@ const translations = {
     supportHelp: "Open support and privacy information inside the app.",
     supportPage: "Support",
     privacyPolicy: "Privacy policy",
+    termsOfUse: "Terms of use",
+    legalNotice: "Legal notice",
     safetyEyebrow: "Before scanning",
     safetyTitle: "AI and privacy acknowledgement",
     safetyIntro: "TechSpec Scanner is an AI-assisted tool. Review these points before using it with real components.",
@@ -446,6 +448,9 @@ const translations = {
     backToSettings: "Back to settings",
     supportContact: "Contact",
     supportContactHelp: "For help, feedback, or privacy questions, use the support contact configured for the public support page.",
+    supportPrivacyHelp: "How photos, notes, feedback, and local app data are handled.",
+    termsHelp: "Usage rules, AI disclaimer, and user responsibilities.",
+    legalHelp: "Publisher, licensing, Creative Commons documentation, and third-party notices.",
     betaFeedback: "Beta feedback",
     betaFeedbackHelp: "Send structured feedback about wrong results, bugs, confusing screens, or feature wishes.",
     betaGuide: "Beta guide",
@@ -882,6 +887,8 @@ const translations = {
     supportHelp: "Oeffne Support- und Datenschutzinformationen direkt in der App.",
     supportPage: "Support",
     privacyPolicy: "Datenschutz",
+    termsOfUse: "Nutzungsbedingungen",
+    legalNotice: "Rechtliche Hinweise",
     safetyEyebrow: "Vor dem Scannen",
     safetyTitle: "KI- und Datenschutzbestaetigung",
     safetyIntro: "TechSpec Scanner ist ein KI-gestuetztes Werkzeug. Pruefe diese Punkte, bevor du es mit echten Bauteilen nutzt.",
@@ -901,6 +908,9 @@ const translations = {
     backToSettings: "Zurueck zu Einstellungen",
     supportContact: "Kontakt",
     supportContactHelp: "Fuer Hilfe, Feedback oder Datenschutzfragen nutze den Supportkontakt der oeffentlichen Supportseite.",
+    supportPrivacyHelp: "Wie Fotos, Notizen, Feedback und lokale App-Daten verarbeitet werden.",
+    termsHelp: "Nutzungsregeln, KI-Hinweis und Verantwortung der Nutzer.",
+    legalHelp: "Herausgeber, Lizenzierung, Creative-Commons-Dokumentation und Drittanbieterhinweise.",
     betaFeedback: "Beta-Feedback",
     betaFeedbackHelp: "Sende strukturiertes Feedback zu falschen Ergebnissen, Fehlern, unklaren Ansichten oder Funktionswuenschen.",
     betaGuide: "Beta-Anleitung",
@@ -1333,6 +1343,8 @@ translations.fr = {
   confirmResetPreferences: "Reinitialiser langue, apparence et preferences locales ?",
   supportPage: "Support",
   privacyPolicy: "Confidentialite",
+  termsOfUse: "Conditions d'utilisation",
+  legalNotice: "Mentions legales",
   screenshotModeTitle: "Mode capture",
   screenshotModeHelp: "Masquer les details de test locaux pour les captures App Store.",
   screenshotModeToggle: "Masquer les diagnostics locaux",
@@ -1359,6 +1371,9 @@ translations.fr = {
   backToSettings: "Retour aux reglages",
   supportContact: "Contact",
   supportContactHelp: "Pour aide, retour ou questions de confidentialite, utilisez le contact configure sur la page support publique.",
+  supportPrivacyHelp: "Comment les photos, notes, retours et donnees locales de l'app sont traites.",
+  termsHelp: "Regles d'utilisation, avertissement IA et responsabilites utilisateur.",
+  legalHelp: "Editeur, licences, documentation Creative Commons et avis tiers.",
   betaFeedback: "Feedback beta",
   betaFeedbackHelp: "Envoyez un retour structure sur resultats faux, bugs, ecrans confus ou idees.",
   betaGuide: "Guide beta",
@@ -1744,6 +1759,8 @@ translations.es = {
   confirmResetPreferences: "Restablecer idioma, apariencia y preferencias locales?",
   supportPage: "Soporte",
   privacyPolicy: "Privacidad",
+  termsOfUse: "Terminos de uso",
+  legalNotice: "Aviso legal",
   screenshotModeTitle: "Modo captura",
   screenshotModeHelp: "Oculta detalles locales de prueba para capturas App Store.",
   screenshotModeToggle: "Ocultar diagnosticos locales",
@@ -1770,6 +1787,9 @@ translations.es = {
   backToSettings: "Volver a ajustes",
   supportContact: "Contacto",
   supportContactHelp: "Para ayuda, comentarios o privacidad, usa el contacto configurado en la pagina publica de soporte.",
+  supportPrivacyHelp: "Como se manejan fotos, notas, feedback y datos locales de la app.",
+  termsHelp: "Reglas de uso, aviso de IA y responsabilidades del usuario.",
+  legalHelp: "Editor, licencias, documentacion Creative Commons y avisos de terceros.",
   betaFeedback: "Feedback beta",
   betaFeedbackHelp: "Envia feedback estructurado sobre resultados erroneos, errores, pantallas confusas o ideas.",
   betaGuide: "Guia beta",
