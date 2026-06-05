@@ -8,7 +8,7 @@
       element.textContent = value;
       if (key === "supportEmail") {
         element.href = `mailto:${value}`;
-      } else if (key === "supportWebsite" || key === "privacyUrl") {
+      } else if (/Url$/.test(key) || key === "supportWebsite") {
         element.href = value;
       }
     } else {
