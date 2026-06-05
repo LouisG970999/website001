@@ -10,7 +10,7 @@ const readinessKey = "component-scanner-readiness-v1";
 const installIdKey = "component-scanner-install-id-v1";
 const safetyAckKey = "component-scanner-safety-ack-v1";
 const betaAccessCodeKey = "techspec-beta-access-code-v1";
-const appBuildVersion = "20260605-5";
+const appBuildVersion = "20260605-6";
 const maxHistoryItems = 8;
 const maxDatabaseMatches = 4;
 const maxTestLogItems = 200;
@@ -256,7 +256,9 @@ const translations = {
     copyResult: "Copy result",
     shareResult: "Share result",
     exportPdf: "Export PDF",
-    resultFeedback: "Send feedback",
+    resultFeedback: "Send scan feedback",
+    resultFeedbackTitle: "Help improve this result",
+    resultFeedbackHelp: "Tell us if the identification was correct, confusing, or missing an important clue.",
     downloadJson: "Download JSON",
     editResult: "Edit result",
     saveEdits: "Save edits",
@@ -721,7 +723,9 @@ const translations = {
     copyResult: "Ergebnis kopieren",
     shareResult: "Ergebnis teilen",
     exportPdf: "PDF exportieren",
-    resultFeedback: "Feedback senden",
+    resultFeedback: "Scan-Feedback senden",
+    resultFeedbackTitle: "Hilf, dieses Ergebnis zu verbessern",
+    resultFeedbackHelp: "Sag uns, ob die Identifikation korrekt, verwirrend oder ohne wichtigen Hinweis war.",
     downloadJson: "JSON herunterladen",
     editResult: "Ergebnis bearbeiten",
     saveEdits: "Aenderungen speichern",
@@ -1196,7 +1200,9 @@ translations.fr = {
   copyResult: "Copier le resultat",
   shareResult: "Partager le resultat",
   exportPdf: "Exporter PDF",
-  resultFeedback: "Envoyer feedback",
+  resultFeedback: "Envoyer un retour scan",
+  resultFeedbackTitle: "Aidez a ameliorer ce resultat",
+  resultFeedbackHelp: "Dites-nous si l'identification etait correcte, confuse ou si un indice important manquait.",
   downloadJson: "Telecharger JSON",
   editResult: "Modifier le resultat",
   saveEdits: "Enregistrer les modifications",
@@ -1617,7 +1623,9 @@ translations.es = {
   copyResult: "Copiar resultado",
   shareResult: "Compartir resultado",
   exportPdf: "Exportar PDF",
-  resultFeedback: "Enviar feedback",
+  resultFeedback: "Enviar feedback del scan",
+  resultFeedbackTitle: "Ayuda a mejorar este resultado",
+  resultFeedbackHelp: "Dinos si la identificacion fue correcta, confusa o si falto una pista importante.",
   downloadJson: "Descargar JSON",
   editResult: "Editar resultado",
   saveEdits: "Guardar cambios",

@@ -31,7 +31,7 @@
         <div>
           <p class="eyebrow">Private beta</p>
           <h1>Send Beta Feedback</h1>
-          <p>Tell us what felt confusing, what broke, and whether the scan result was useful. This helps shape the first public version.</p>
+          <p>Short, honest feedback is enough. Tell us whether the result helped, what was confusing, or what broke.</p>
         </div>
       </section>
 
@@ -39,6 +39,15 @@
         <article class="content-panel notice wide">
           <h2>Before sending</h2>
           <p>Do not include API keys, passwords, unrelated personal documents, or confidential third-party information. AI results are suggestions only and must be verified before real technical use.</p>
+        </article>
+
+        <article class="content-panel wide tester-help-panel">
+          <h2>Good feedback includes</h2>
+          <ul>
+            <li>What part you scanned, if you know it.</li>
+            <li>Whether the name, confidence, material, and next-photo advice made sense.</li>
+            <li>What felt unclear, missing, too technical, or surprisingly useful.</li>
+          </ul>
         </article>
 
         <article class="content-panel wide">
@@ -72,7 +81,7 @@
             </label>
             <label>
               Where did it happen?
-              <input id="feedbackPage" name="page" type="text" placeholder="e.g. scan, PDF export, settings, website">
+              <input id="feedbackPage" name="page" type="text" placeholder="e.g. scan result, photo upload, PDF export, settings">
             </label>
             <label>
               Contact email (optional)
@@ -80,7 +89,7 @@
             </label>
             <label class="wide-field">
               What happened?
-              <textarea id="feedbackMessage" name="message" rows="7" placeholder="Describe the component, what you expected, what the app returned, and what felt unclear." required></textarea>
+              <textarea id="feedbackMessage" name="message" rows="7" placeholder="Example: I scanned an M8 bolt. The app called it a bearing. The photo was sharp, but the thread was partly hidden." required></textarea>
             </label>
             <p class="small-note wide-field">The beta code is used only to send this feedback request. Do not include API keys, passwords, or private documents in the message.</p>
             <button class="button-link primary-action" type="submit">Send feedback</button>

@@ -2299,6 +2299,29 @@ body.screenshot-mode #backendStatus {
   margin-bottom: 12px;
 }
 
+.tester-feedback-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin: 6px 0 18px;
+  padding: 14px;
+  border: 1px solid rgba(37, 99, 235, 0.28);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.11), rgba(20, 184, 166, 0.09));
+}
+
+.tester-feedback-card h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
+}
+
+.tester-feedback-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
 .review-save-panel,
 .advanced-result-actions {
   border: 1px solid var(--line);
@@ -2738,6 +2761,15 @@ li + li {
 
   .result-grid {
     grid-template-columns: 1fr;
+  }
+
+  .tester-feedback-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .tester-feedback-card .primary-btn {
+    width: 100%;
   }
 
   .preview-grid {
