@@ -70,6 +70,8 @@ DAILY_SCAN_LIMIT=80
 MONTHLY_SCAN_LIMIT=800
 INSTALL_DAILY_SCAN_LIMIT=25
 INSTALL_MONTHLY_SCAN_LIMIT=250
+AUTOMATION_FEEDBACK_WEBHOOK_URL=
+AUTOMATION_WEBHOOK_SECRET=
 ```
 
 Without a key, the app returns a demo result so the UI can be tested immediately.
@@ -119,6 +121,8 @@ For a private beta, set `BETA_ACCESS_CODE` on the backend before sharing the hos
 Set `FEEDBACK_ADMIN_CODE` to an owner-only value before relying on hosted beta feedback. It protects the feedback export endpoint at `/api/feedback/export`. Do not share that admin code with testers.
 
 The owner feedback dashboard is available at `/support/admin-feedback.html`. It can load feedback, filter entries, export JSON/CSV, delete individual entries, and show hosted beta health.
+
+Optional feedback automation can be connected later with `AUTOMATION_FEEDBACK_WEBHOOK_URL`. This is designed for n8n, Make, Zapier, or a custom webhook receiver. If it is empty, feedback still works normally and is stored on the server. If it is set, the server sends a copy of each beta feedback entry to the webhook without exposing API keys or beta codes.
 
 For a local server/support/feedback smoke test, run:
 

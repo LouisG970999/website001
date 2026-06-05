@@ -10,7 +10,7 @@ const usageFile = path.join(dataDir, "usage.json");
 const feedbackFile = path.join(dataDir, "feedback.json");
 loadEnv(path.join(root, ".env"));
 
-const SERVER_VERSION = "20260605-3";
+const SERVER_VERSION = "20260605-4";
 const SERVER_STARTED_AT = new Date().toISOString();
 const PORT = Number(process.env.PORT || 3000);
 const APP_MODE = normalizeAppMode(process.env.APP_MODE);
@@ -32,6 +32,9 @@ const MAX_FEEDBACK_BODY_BYTES = Number(process.env.MAX_FEEDBACK_BODY_BYTES || 12
 const MAX_IMAGE_BASE64_CHARS = Number(process.env.MAX_IMAGE_BASE64_CHARS || 6_500_000);
 const BETA_ACCESS_CODE = (process.env.BETA_ACCESS_CODE || "").trim();
 const FEEDBACK_ADMIN_CODE = (process.env.FEEDBACK_ADMIN_CODE || "").trim();
+const AUTOMATION_FEEDBACK_WEBHOOK_URL = String(process.env.AUTOMATION_FEEDBACK_WEBHOOK_URL || process.env.N8N_FEEDBACK_WEBHOOK_URL || "").trim();
+const AUTOMATION_WEBHOOK_SECRET = String(process.env.AUTOMATION_WEBHOOK_SECRET || process.env.N8N_WEBHOOK_SECRET || "").trim();
+const AUTOMATION_WEBHOOK_TIMEOUT_MS = clampNumber(process.env.AUTOMATION_WEBHOOK_TIMEOUT_MS || 2500, 500, 10000) || 2500;
 const rateLimitBuckets = new Map();
 
 const mimeTypes = {
@@ -62,6 +65,7 @@ const server = http.createServer(async (req, res) => {
         startedAt: SERVER_STARTED_AT,
         localAccessUrls: getLocalAccessUrls(),
         usage: getUsageSnapshot(undefined, installId),
+        automation: getAutomationSnapshot(),
         preflight: getPreflightSnapshot(req)
       });
       return;
@@ -241,6 +245,9 @@ async function handleFeedback(req, res) {
   const feedback = readJsonArray(feedbackFile).slice(-499);
   feedback.push(entry);
   writeJsonFile(feedbackFile, feedback);
+  notifyFeedbackAutomation(entry, req).catch(error => {
+    console.warn(`Feedback automation failed: ${error.message}`);
+  });
   sendJson(res, 200, { ok: true, id: entry.id });
 }
 
@@ -1034,6 +1041,7 @@ function getPreflightSnapshot(req) {
   const forwardedProto = String(req.headers["x-forwarded-proto"] || "").toLowerCase();
   const requestIsHttps = forwardedProto === "https" || Boolean(req.socket.encrypted);
   const support = readSupportConfigSnapshot();
+  const automation = getAutomationSnapshot();
   const checks = [
     {
       id: "app-mode",
@@ -1116,6 +1124,16 @@ function getPreflightSnapshot(req) {
         : "Set FEEDBACK_ADMIN_CODE before relying on hosted beta feedback collection."
     },
     {
+      id: "feedback-automation",
+      ok: !automation.feedbackWebhookInvalid,
+      severity: "warning",
+      message: automation.feedbackWebhookInvalid
+        ? "Feedback automation webhook URL is invalid. Use HTTPS in production."
+        : automation.feedbackWebhookConfigured
+          ? "Optional feedback automation webhook is configured."
+          : "Optional feedback automation webhook is not configured; feedback still stores locally."
+    },
+    {
       id: "limits",
       ok: DAILY_SCAN_LIMIT > 0 && MONTHLY_SCAN_LIMIT > 0 && RATE_LIMIT_MAX_REQUESTS > 0,
       severity: "critical",
@@ -1133,6 +1151,7 @@ function getPreflightSnapshot(req) {
     appMode: APP_MODE,
     betaAccessRequired: isBetaAccessRequired(),
     support,
+    automation,
     checks,
     blockingCount: blockingChecks.length
   };
@@ -1176,6 +1195,93 @@ function readSupportConfigSnapshot() {
       publicationDate: !publicationDate || /^draft$/i.test(publicationDate)
     }
   };
+}
+
+function getAutomationSnapshot() {
+  const rawWebhookUrl = Boolean(AUTOMATION_FEEDBACK_WEBHOOK_URL);
+  const parsed = parseWebhookUrl(AUTOMATION_FEEDBACK_WEBHOOK_URL);
+  return {
+    feedbackWebhookConfigured: Boolean(parsed),
+    feedbackWebhookInvalid: Boolean(rawWebhookUrl && !parsed),
+    feedbackWebhookHost: parsed ? parsed.host : null,
+    sharedSecretConfigured: Boolean(AUTOMATION_WEBHOOK_SECRET),
+    timeoutMs: AUTOMATION_WEBHOOK_TIMEOUT_MS
+  };
+}
+
+async function notifyFeedbackAutomation(entry, req) {
+  if (!parseWebhookUrl(AUTOMATION_FEEDBACK_WEBHOOK_URL)) return false;
+
+  const payload = {
+    event: "beta_feedback_received",
+    sentAt: new Date().toISOString(),
+    appName: "TechSpec Scanner",
+    serverVersion: SERVER_VERSION,
+    appMode: APP_MODE,
+    publicBaseUrl: String(process.env.PUBLIC_BASE_URL || "").trim() || null,
+    feedback: {
+      id: entry.id,
+      createdAt: entry.createdAt,
+      installId: entry.installId,
+      category: entry.category,
+      rating: entry.rating,
+      page: entry.page,
+      message: entry.message,
+      contact: entry.contact,
+      appVersion: entry.appVersion,
+      browserOnline: entry.browserOnline,
+      screen: entry.screen,
+      userAgent: entry.userAgent
+    },
+    request: {
+      origin: sanitizeText(req.headers.origin, 160),
+      referer: sanitizeText(req.headers.referer, 240)
+    }
+  };
+
+  await postAutomationWebhook(payload);
+  return true;
+}
+
+async function postAutomationWebhook(payload) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), AUTOMATION_WEBHOOK_TIMEOUT_MS);
+  const headers = {
+    "Content-Type": "application/json",
+    "User-Agent": `TechSpec-Scanner/${SERVER_VERSION}`,
+    "X-TechSpec-Event": payload.event,
+    "X-TechSpec-Server-Version": SERVER_VERSION
+  };
+  if (AUTOMATION_WEBHOOK_SECRET) {
+    headers["X-TechSpec-Automation-Secret"] = AUTOMATION_WEBHOOK_SECRET;
+  }
+
+  try {
+    const response = await fetch(AUTOMATION_FEEDBACK_WEBHOOK_URL, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(payload),
+      signal: controller.signal
+    });
+    if (!response.ok) {
+      throw new Error(`Webhook returned HTTP ${response.status}.`);
+    }
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function parseWebhookUrl(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return null;
+  try {
+    const parsed = new URL(raw);
+    return parsed.protocol === "https:" || (APP_MODE !== "production" && parsed.protocol === "http:")
+      ? parsed
+      : null;
+  } catch {
+    return null;
+  }
 }
 
 function readSupportConfigValues() {

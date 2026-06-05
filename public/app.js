@@ -10,7 +10,7 @@ const readinessKey = "component-scanner-readiness-v1";
 const installIdKey = "component-scanner-install-id-v1";
 const safetyAckKey = "component-scanner-safety-ack-v1";
 const betaAccessCodeKey = "techspec-beta-access-code-v1";
-const appBuildVersion = "20260605-3";
+const appBuildVersion = "20260605-4";
 const maxHistoryItems = 8;
 const maxDatabaseMatches = 4;
 const maxTestLogItems = 200;
@@ -518,6 +518,8 @@ const translations = {
     preflightCheckPrivacyPublicationDate: "Privacy publication date",
     preflightCheckSupportPages: "Support pages",
     preflightCheckBetaAccess: "Beta access",
+    preflightCheckFeedbackAdmin: "Feedback admin access",
+    preflightCheckFeedbackAutomation: "Feedback automation",
     preflightCheckLimits: "Usage and rate limits",
     reviewNotesTitle: "Review notes",
     reviewNotesHelp: "Short App Store reviewer context.",
@@ -978,6 +980,8 @@ const translations = {
     preflightCheckPrivacyPublicationDate: "Datenschutz-Veroeffentlichungsdatum",
     preflightCheckSupportPages: "Support-Seiten",
     preflightCheckBetaAccess: "Beta-Zugang",
+    preflightCheckFeedbackAdmin: "Feedback-Admin-Zugang",
+    preflightCheckFeedbackAutomation: "Feedback-Automatisierung",
     preflightCheckLimits: "Nutzungs- und Ratenlimits",
     reviewNotesTitle: "Review-Notizen",
     reviewNotesHelp: "Kurzer Kontext fuer App-Store-Pruefer.",
@@ -1441,6 +1445,8 @@ translations.fr = {
   preflightCheckPrivacyPublicationDate: "Date publication confidentialite",
   preflightCheckSupportPages: "Pages support",
   preflightCheckBetaAccess: "Acces beta",
+  preflightCheckFeedbackAdmin: "Acces admin feedback",
+  preflightCheckFeedbackAutomation: "Automatisation feedback",
   preflightCheckLimits: "Limites d'utilisation et debit",
   reviewNotesTitle: "Notes de revue",
   reviewNotesHelp: "Court contexte pour les reviewers App Store.",
@@ -1857,6 +1863,8 @@ translations.es = {
   preflightCheckPrivacyPublicationDate: "Fecha publicacion privacidad",
   preflightCheckSupportPages: "Paginas soporte",
   preflightCheckBetaAccess: "Acceso beta",
+  preflightCheckFeedbackAdmin: "Acceso admin feedback",
+  preflightCheckFeedbackAutomation: "Automatizacion feedback",
   preflightCheckLimits: "Limites de uso y tasa",
   reviewNotesTitle: "Notas de revision",
   reviewNotesHelp: "Contexto breve para revisores App Store.",
@@ -2988,6 +2996,8 @@ function preflightCheckLabel(id, fallback = "") {
     "privacy-publication-date": "preflightCheckPrivacyPublicationDate",
     "support-pages": "preflightCheckSupportPages",
     "beta-access": "preflightCheckBetaAccess",
+    "feedback-admin": "preflightCheckFeedbackAdmin",
+    "feedback-automation": "preflightCheckFeedbackAutomation",
     limits: "preflightCheckLimits"
   };
   return keys[id] ? t(keys[id]) : fallback || id || t("unknown");
@@ -3233,7 +3243,10 @@ function buildProductionEnvTemplate() {
     "RATE_LIMIT_WINDOW_MS=60000",
     "RATE_LIMIT_MAX_REQUESTS=12",
     "MAX_ANALYZE_BODY_BYTES=14680064",
-    "MAX_IMAGE_BASE64_CHARS=6500000"
+    "MAX_IMAGE_BASE64_CHARS=6500000",
+    "AUTOMATION_FEEDBACK_WEBHOOK_URL=",
+    "AUTOMATION_WEBHOOK_SECRET=",
+    "AUTOMATION_WEBHOOK_TIMEOUT_MS=2500"
   ].join("\n");
 }
 

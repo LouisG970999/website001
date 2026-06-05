@@ -71,3 +71,5 @@ For the first beta, prioritize repeated issues over one-off preferences.
 The current beta stores feedback in a file on the server. This is acceptable for early testing, but it is not the final production storage model. Before a larger public launch, move feedback and usage tracking to persistent storage such as Postgres or Supabase.
 
 Private pages use both HTML `noindex` metadata and the `X-Robots-Tag: noindex, nofollow` header, but access control still matters. Only the normal beta access code should be sent to testers.
+
+Optional automation can mirror feedback into n8n or another webhook receiver. See `docs/n8n-feedback-automation.md`. This is not required for beta testing; the local server feedback store remains the source of truth.

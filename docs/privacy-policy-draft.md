@@ -14,6 +14,7 @@ TechSpec Scanner may process the following data when you use the app:
 
 - Photos of mechanical components that you choose to submit for analysis.
 - Context notes, measurements, project names, technician notes, corrections, and evaluation labels that you enter.
+- Beta feedback messages, optional contact email, app version, browser/device details, and the page or feature you report.
 - Technical request information such as request time, anonymous installation ID, basic usage counters, and server-side scan limits.
 - App settings stored locally on your device, such as language, theme, recent scans, known parts, and testing entries.
 
@@ -56,6 +57,7 @@ We may share submitted scan data with service providers needed to operate the ap
 
 - Google Gemini / Google Cloud for AI analysis.
 - Hosting, logging, storage, and infrastructure providers.
+- Automation/workflow providers such as n8n, if optional feedback automation is enabled.
 - Payment providers if paid plans, subscriptions, or scan packs are added later.
 
 We do not sell personal data.
