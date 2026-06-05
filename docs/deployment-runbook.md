@@ -51,6 +51,15 @@ Set these in the hosting dashboard, not inside frontend files:
 PORT=3000
 APP_MODE=production
 PUBLIC_BASE_URL=https://your-production-domain.example
+SUPPORT_EMAIL=your-real-support-email@example.com
+SUPPORT_WEBSITE=https://your-production-domain.example/support/
+SUPPORT_BETA_GUIDE_URL=https://your-production-domain.example/support/beta.html
+SUPPORT_PRIVACY_URL=https://your-production-domain.example/support/privacy.html
+SUPPORT_TERMS_URL=https://your-production-domain.example/support/terms.html
+SUPPORT_LEGAL_URL=https://your-production-domain.example/support/legal.html
+SUPPORT_FEEDBACK_URL=https://your-production-domain.example/support/feedback.html
+PUBLISHER_NAME=Your legal publisher name
+PRIVACY_PUBLICATION_DATE=2026-06-05
 GEMINI_API_KEY=your_production_key
 BETA_ACCESS_CODE=private_beta_code_if_beta_is_enabled
 FEEDBACK_ADMIN_CODE=private_owner_only_feedback_code
@@ -107,6 +116,11 @@ For hosted builds, the backend can also serve `public/support/support-config.js`
 ```text
 SUPPORT_EMAIL=your-real-support-email@example.com
 SUPPORT_WEBSITE=https://your-domain.example/support/
+SUPPORT_BETA_GUIDE_URL=https://your-domain.example/support/beta.html
+SUPPORT_PRIVACY_URL=https://your-domain.example/support/privacy.html
+SUPPORT_TERMS_URL=https://your-domain.example/support/terms.html
+SUPPORT_LEGAL_URL=https://your-domain.example/support/legal.html
+SUPPORT_FEEDBACK_URL=https://your-domain.example/support/feedback.html
 PUBLISHER_NAME=Your legal publisher name
 PRIVACY_PUBLICATION_DATE=2026-06-02
 ```
@@ -117,7 +131,7 @@ PRIVACY_PUBLICATION_DATE=2026-06-02
 - Support email no longer uses a placeholder.
 - Support website and privacy URL use public HTTPS URLs.
 - Terms of Use URL uses a public HTTPS URL.
-- Support, privacy, and terms pages are reachable.
+- Legal notice, beta guide, feedback, support, privacy, and terms pages are reachable.
 - Rate limits and usage limits are configured.
 - Private beta feedback export is protected by `FEEDBACK_ADMIN_CODE`.
 

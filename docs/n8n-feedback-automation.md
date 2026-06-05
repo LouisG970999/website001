@@ -39,7 +39,7 @@ Notes:
   "event": "beta_feedback_received",
   "sentAt": "2026-06-05T12:00:00.000Z",
   "appName": "TechSpec Scanner",
-  "serverVersion": "20260605-4",
+  "serverVersion": "20260605-5",
   "appMode": "production",
   "publicBaseUrl": "https://techspec-scanner-beta.onrender.com",
   "feedback": {
@@ -51,7 +51,7 @@ Notes:
     "page": "scan",
     "message": "Tester message",
     "contact": "tester@example.com",
-    "appVersion": "20260605-4",
+    "appVersion": "20260605-5",
     "browserOnline": true,
     "screen": "390x844",
     "userAgent": "browser user agent"

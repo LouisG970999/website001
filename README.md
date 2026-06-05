@@ -64,6 +64,16 @@ PORT=3000
 APP_MODE=development
 BETA_ACCESS_CODE=
 FEEDBACK_ADMIN_CODE=
+PUBLIC_BASE_URL=
+SUPPORT_EMAIL=
+SUPPORT_WEBSITE=
+SUPPORT_BETA_GUIDE_URL=
+SUPPORT_PRIVACY_URL=
+SUPPORT_TERMS_URL=
+SUPPORT_LEGAL_URL=
+SUPPORT_FEEDBACK_URL=
+PUBLISHER_NAME=
+PRIVACY_PUBLICATION_DATE=
 GEMINI_FAST_MODEL=gemini-2.5-flash-lite
 GEMINI_STRONG_MODEL=gemini-2.5-flash
 DAILY_SCAN_LIMIT=80
@@ -104,7 +114,7 @@ Update `public/support/support-config.js` before publishing:
 
 Before publishing, replace the placeholder support email, company/name, support URL, privacy URL, terms URL, publication date, and final hosted domain.
 
-Hosted deployments can override support metadata without code edits by setting `SUPPORT_EMAIL`, `SUPPORT_WEBSITE`, `PUBLISHER_NAME`, and `PRIVACY_PUBLICATION_DATE` in the backend environment.
+Hosted deployments can override support metadata without code edits by setting `PUBLIC_BASE_URL`, `SUPPORT_EMAIL`, `SUPPORT_WEBSITE`, `SUPPORT_BETA_GUIDE_URL`, `SUPPORT_PRIVACY_URL`, `SUPPORT_TERMS_URL`, `SUPPORT_LEGAL_URL`, `SUPPORT_FEEDBACK_URL`, `PUBLISHER_NAME`, and `PRIVACY_PUBLICATION_DATE` in the backend environment.
 
 Commercial app assets should stay all rights reserved. If school or project documentation needs a Creative Commons notice, use `CC BY-NC-ND 4.0` only on that separate documentation, not on the app, source code, logo, brand, website design, or App Store material.
 

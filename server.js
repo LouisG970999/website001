@@ -10,7 +10,7 @@ const usageFile = path.join(dataDir, "usage.json");
 const feedbackFile = path.join(dataDir, "feedback.json");
 loadEnv(path.join(root, ".env"));
 
-const SERVER_VERSION = "20260605-4";
+const SERVER_VERSION = "20260605-5";
 const SERVER_STARTED_AT = new Date().toISOString();
 const PORT = Number(process.env.PORT || 3000);
 const APP_MODE = normalizeAppMode(process.env.APP_MODE);
@@ -1084,6 +1084,12 @@ function getPreflightSnapshot(req) {
       message: support.websiteConfigured ? "Support website is configured." : "Support website still points to a local path."
     },
     {
+      id: "beta-guide-url",
+      ok: support.betaGuideUrlConfigured,
+      severity: "warning",
+      message: support.betaGuideUrlConfigured ? "Beta guide URL is configured." : "Beta guide URL still points to a local path."
+    },
+    {
       id: "privacy-url",
       ok: support.privacyUrlConfigured,
       severity: "critical",
@@ -1094,6 +1100,18 @@ function getPreflightSnapshot(req) {
       ok: support.termsUrlConfigured,
       severity: "critical",
       message: support.termsUrlConfigured ? "Terms of Use URL is configured." : "Terms of Use URL still points to a local path."
+    },
+    {
+      id: "legal-url",
+      ok: support.legalUrlConfigured,
+      severity: "critical",
+      message: support.legalUrlConfigured ? "Legal notice URL is configured." : "Legal notice URL still points to a local path."
+    },
+    {
+      id: "feedback-url",
+      ok: support.feedbackUrlConfigured,
+      severity: "warning",
+      message: support.feedbackUrlConfigured ? "Feedback URL is configured." : "Feedback URL still points to a local path."
     },
     {
       id: "privacy-publication-date",
@@ -1170,28 +1188,43 @@ function readSupportConfigSnapshot() {
   const supportWebsite = config.supportWebsite;
   const privacyUrl = config.privacyUrl;
   const termsUrl = config.termsUrl;
+  const legalUrl = config.legalUrl;
+  const feedbackUrl = config.feedbackUrl;
+  const betaGuideUrl = config.betaGuideUrl;
   const resolvedSupportWebsite = resolveConfiguredUrl(supportWebsite, publicBaseUrl);
   const resolvedPrivacyUrl = resolveConfiguredUrl(privacyUrl, publicBaseUrl);
   const resolvedTermsUrl = resolveConfiguredUrl(termsUrl, publicBaseUrl);
+  const resolvedLegalUrl = resolveConfiguredUrl(legalUrl, publicBaseUrl);
+  const resolvedFeedbackUrl = resolveConfiguredUrl(feedbackUrl, publicBaseUrl);
+  const resolvedBetaGuideUrl = resolveConfiguredUrl(betaGuideUrl, publicBaseUrl);
   const publicationDate = config.publicationDate;
 
   return {
     emailConfigured: Boolean(supportEmail && !/support@example\.com/i.test(supportEmail)),
     websiteConfigured: Boolean(resolvedSupportWebsite),
+    betaGuideUrlConfigured: Boolean(resolvedBetaGuideUrl),
     privacyUrlConfigured: Boolean(resolvedPrivacyUrl),
     termsUrlConfigured: Boolean(resolvedTermsUrl),
+    legalUrlConfigured: Boolean(resolvedLegalUrl),
+    feedbackUrlConfigured: Boolean(resolvedFeedbackUrl),
     privacyPublished: Boolean(publicationDate && !/^draft$/i.test(publicationDate)),
     pagesAvailable: fs.existsSync(supportIndexPath) && fs.existsSync(betaPath) && fs.existsSync(privacyPath) && fs.existsSync(termsPath) && fs.existsSync(legalPath) && fs.existsSync(feedbackPath),
     resolvedUrls: {
       supportWebsite: resolvedSupportWebsite || null,
+      betaGuideUrl: resolvedBetaGuideUrl || null,
       privacyUrl: resolvedPrivacyUrl || null,
-      termsUrl: resolvedTermsUrl || null
+      termsUrl: resolvedTermsUrl || null,
+      legalUrl: resolvedLegalUrl || null,
+      feedbackUrl: resolvedFeedbackUrl || null
     },
     placeholders: {
       supportEmail: !supportEmail || /support@example\.com/i.test(supportEmail),
       supportWebsite: !resolvedSupportWebsite,
+      betaGuideUrl: !resolvedBetaGuideUrl,
       privacyUrl: !resolvedPrivacyUrl,
       termsUrl: !resolvedTermsUrl,
+      legalUrl: !resolvedLegalUrl,
+      feedbackUrl: !resolvedFeedbackUrl,
       publicationDate: !publicationDate || /^draft$/i.test(publicationDate)
     }
   };
@@ -1309,6 +1342,11 @@ function readSupportConfigValues() {
     publisherName: process.env.PUBLISHER_NAME,
     supportEmail: process.env.SUPPORT_EMAIL,
     supportWebsite: process.env.SUPPORT_WEBSITE,
+    betaGuideUrl: process.env.SUPPORT_BETA_GUIDE_URL,
+    privacyUrl: process.env.SUPPORT_PRIVACY_URL || process.env.PRIVACY_POLICY_URL,
+    termsUrl: process.env.SUPPORT_TERMS_URL || process.env.TERMS_OF_USE_URL,
+    legalUrl: process.env.SUPPORT_LEGAL_URL || process.env.LEGAL_NOTICE_URL,
+    feedbackUrl: process.env.SUPPORT_FEEDBACK_URL,
     publicationDate: process.env.PRIVACY_PUBLICATION_DATE || process.env.SUPPORT_PUBLICATION_DATE
   };
   for (const [key, value] of Object.entries(envOverrides)) {

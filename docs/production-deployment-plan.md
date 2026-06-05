@@ -51,6 +51,17 @@ These are good for MVP production testing, but they are not a complete paid-user
 
 ```env
 PORT=3000
+APP_MODE=production
+PUBLIC_BASE_URL=https://app.techspecscanner.com
+SUPPORT_EMAIL=support@techspecscanner.com
+SUPPORT_WEBSITE=https://app.techspecscanner.com/support/
+SUPPORT_BETA_GUIDE_URL=https://app.techspecscanner.com/support/beta.html
+SUPPORT_PRIVACY_URL=https://app.techspecscanner.com/support/privacy.html
+SUPPORT_TERMS_URL=https://app.techspecscanner.com/support/terms.html
+SUPPORT_LEGAL_URL=https://app.techspecscanner.com/support/legal.html
+SUPPORT_FEEDBACK_URL=https://app.techspecscanner.com/support/feedback.html
+PUBLISHER_NAME=TechSpec Scanner
+PRIVACY_PUBLICATION_DATE=2026-06-05
 GEMINI_API_KEY=your_production_key
 GEMINI_FAST_MODEL=gemini-2.5-flash-lite
 GEMINI_STRONG_MODEL=gemini-2.5-flash

@@ -76,6 +76,15 @@ Add these environment variables on the hosted service:
 ```env
 APP_MODE=production
 PUBLIC_BASE_URL=https://app.techspecscanner.com
+SUPPORT_EMAIL=support@techspecscanner.com
+SUPPORT_WEBSITE=https://app.techspecscanner.com/support/
+SUPPORT_BETA_GUIDE_URL=https://app.techspecscanner.com/support/beta.html
+SUPPORT_PRIVACY_URL=https://app.techspecscanner.com/support/privacy.html
+SUPPORT_TERMS_URL=https://app.techspecscanner.com/support/terms.html
+SUPPORT_LEGAL_URL=https://app.techspecscanner.com/support/legal.html
+SUPPORT_FEEDBACK_URL=https://app.techspecscanner.com/support/feedback.html
+PUBLISHER_NAME=TechSpec Scanner
+PRIVACY_PUBLICATION_DATE=2026-06-05
 GEMINI_API_KEY=your_gemini_key
 BETA_ACCESS_CODE=private-code-for-testers
 FEEDBACK_ADMIN_CODE=private-owner-only-feedback-code
@@ -108,7 +117,7 @@ Wait until HTTPS is active.
 
 ## Step 6: Update Support Config
 
-Before public sharing, update:
+Before public sharing, either set the support environment variables above or update:
 
 `public/support/support-config.js`
 
