@@ -115,14 +115,16 @@
     const criticalCount = checks.filter(check => !check.ok && check.severity === "critical").length;
     const warningCount = checks.filter(check => !check.ok && check.severity === "warning").length;
     const usage = health.usage || {};
-    const daily = usage.dailyLimit ? `${usage.dailyCount || 0} / ${usage.dailyLimit}` : String(usage.dailyCount || 0);
-    const monthly = usage.monthlyLimit ? `${usage.monthlyCount || 0} / ${usage.monthlyLimit}` : String(usage.monthlyCount || 0);
+    const daily = usage.daily ? `${usage.daily.count || 0} / ${usage.daily.limit || 0}` : String(usage.dailyCount || 0);
+    const monthly = usage.monthly ? `${usage.monthly.count || 0} / ${usage.monthly.limit || 0}` : String(usage.monthlyCount || 0);
+    const automation = automationStatus(health.automation);
 
     healthSummary.textContent = `${health.appMode || "unknown"} mode. Server ${health.serverVersion || "unknown"}. Started ${formatDate(health.startedAt)}.`;
     healthStats.replaceChildren(
       statCard("Backend", health.ok ? "Online" : "Issue"),
       statCard("Gemini", health.geminiConfigured ? "Configured" : "Missing"),
       statCard("Beta access", health.betaAccessRequired ? "Enabled" : "Disabled"),
+      statCard("Automation", automation),
       statCard("Daily scans", daily),
       statCard("Monthly scans", monthly),
       statCard("Preflight", `${criticalCount} critical / ${warningCount} warning`)
@@ -396,6 +398,17 @@
     card.className = "feedback-stat-card";
     card.innerHTML = `<span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong>`;
     return card;
+  }
+
+  function automationStatus(automation) {
+    if (!automation) return "Unknown";
+    if (automation.feedbackWebhookInvalid) return "Invalid URL";
+    if (automation.feedbackWebhookConfigured) {
+      return automation.feedbackWebhookHost
+        ? `Enabled: ${automation.feedbackWebhookHost}`
+        : "Enabled";
+    }
+    return "Off";
   }
 
   function filterEntries(entries) {
