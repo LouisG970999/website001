@@ -104,6 +104,8 @@ Before publishing, replace the placeholder support email, company/name, support 
 
 Hosted deployments can override support metadata without code edits by setting `SUPPORT_EMAIL`, `SUPPORT_WEBSITE`, `PUBLISHER_NAME`, and `PRIVACY_PUBLICATION_DATE` in the backend environment.
 
+Commercial app assets should stay all rights reserved. If school or project documentation needs a Creative Commons notice, use `CC BY-NC-ND 4.0` only on that separate documentation, not on the app, source code, logo, brand, website design, or App Store material.
+
 Settings includes a Publishing Pack with reviewer notes, privacy summary, App Store listing copy, production environment template, support config template, release checklist, and backend preflight checks. The preflight endpoint is:
 
 ```text

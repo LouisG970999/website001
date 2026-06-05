@@ -58,6 +58,14 @@ This positioning should stay consistent across:
 - [ ] Terms/disclaimer say users must verify with measurements, markings, documentation, and professional judgment.
 - [ ] The app is not marketed for safety-critical decisions as a sole source.
 
+### Intellectual property and licensing
+
+- [ ] App source code, backend, logo, app icon, brand name, app UI, website design, App Store screenshots, and marketing assets are treated as all rights reserved.
+- [ ] Creative Commons is not used as the app/source-code/logo license.
+- [ ] Any separate school, demonstration, or project documentation that uses Creative Commons states: `CC BY-NC-ND 4.0 Attribution-NonCommercial-NoDerivatives 4.0 International`.
+- [ ] CC BY-NC-ND or other NonCommercial/NoDerivatives third-party material is not included in the commercial app UI, source code, logo, editable assets, screenshots, or paid marketing material without separate permission.
+- [ ] Third-party services, images, fonts, datasets, libraries, and examples are listed in the legal notice before public release.
+
 ## Likely App Privacy Answers
 
 These must be verified against the final production build.
