@@ -10,7 +10,7 @@ const readinessKey = "component-scanner-readiness-v1";
 const installIdKey = "component-scanner-install-id-v1";
 const safetyAckKey = "component-scanner-safety-ack-v1";
 const betaAccessCodeKey = "techspec-beta-access-code-v1";
-const appBuildVersion = "20260605-6";
+const appBuildVersion = "20260607-1";
 const maxHistoryItems = 8;
 const maxDatabaseMatches = 4;
 const maxTestLogItems = 200;
@@ -4418,7 +4418,7 @@ function buildResultFeedbackUrl() {
   const result = latestResult?.result || {};
   const confidence = Math.round(Number(result.confidence || 0) * 100);
   const params = new URLSearchParams({
-    category: "wrong-result",
+    category: "scan-result",
     page: "scan result",
     message: [
       `Scan ID: ${latestResult?.scanId || "not assigned"}`,

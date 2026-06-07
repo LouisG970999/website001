@@ -56,6 +56,7 @@
             <label>
               Category
               <select id="feedbackCategory" name="category">
+                <option value="scan-result">Scan result feedback</option>
                 <option value="wrong-result">Wrong or uncertain identification</option>
                 <option value="ui-confusing">User interface confusion</option>
                 <option value="bug">Bug or crash</option>
@@ -73,6 +74,15 @@
                 <option value="3">3 - Okay</option>
                 <option value="2">2 - Frustrating</option>
                 <option value="1">1 - Could not use it</option>
+              </select>
+            </label>
+            <label>
+              Was the identification correct?
+              <select id="feedbackVerdict" name="verdict">
+                <option value="">Not sure / not applicable</option>
+                <option value="correct">Correct</option>
+                <option value="partly-correct">Partly correct</option>
+                <option value="wrong">Wrong</option>
               </select>
             </label>
             <label>

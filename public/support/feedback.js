@@ -40,6 +40,7 @@
     const mapping = {
       category: "#feedbackCategory",
       rating: "#feedbackRating",
+      verdict: "#feedbackVerdict",
       page: "#feedbackPage",
       contact: "#feedbackContact",
       message: "#feedbackMessage"
@@ -79,6 +80,7 @@
     const payload = {
       category: document.querySelector("#feedbackCategory").value,
       rating: document.querySelector("#feedbackRating").value,
+      verdict: document.querySelector("#feedbackVerdict").value,
       page: document.querySelector("#feedbackPage").value,
       contact: document.querySelector("#feedbackContact").value,
       message: document.querySelector("#feedbackMessage").value,

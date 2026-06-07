@@ -14,6 +14,7 @@
   const searchInput = document.querySelector("#feedbackSearchInput");
   const categoryFilter = document.querySelector("#feedbackCategoryFilter");
   const ratingFilter = document.querySelector("#feedbackRatingFilter");
+  const verdictFilter = document.querySelector("#feedbackVerdictFilter");
   const clearFiltersBtn = document.querySelector("#clearFeedbackFiltersBtn");
   const copyTriageBtn = document.querySelector("#copyFeedbackTriageBtn");
   const downloadTriageBtn = document.querySelector("#downloadFeedbackTriageBtn");
@@ -77,7 +78,7 @@
     );
   });
 
-  for (const control of [searchInput, categoryFilter, ratingFilter]) {
+  for (const control of [searchInput, categoryFilter, ratingFilter, verdictFilter]) {
     control?.addEventListener("input", () => renderFeedback(latestExport));
   }
 
@@ -85,6 +86,7 @@
     if (searchInput) searchInput.value = "";
     if (categoryFilter) categoryFilter.value = "";
     if (ratingFilter) ratingFilter.value = "";
+    if (verdictFilter) verdictFilter.value = "";
     renderFeedback(latestExport);
   });
 
@@ -232,6 +234,7 @@
         <dl>
           <dt>ID</dt><dd>${escapeHtml(entry.id || "unknown")}</dd>
           <dt>Rating</dt><dd>${escapeHtml(entry.rating || "none")}</dd>
+          <dt>Identification</dt><dd>${escapeHtml(formatVerdict(entry.verdict))}</dd>
           <dt>Page</dt><dd>${escapeHtml(entry.page || "not provided")}</dd>
           <dt>Contact</dt><dd>${escapeHtml(entry.contact || "not provided")}</dd>
           <dt>Install ID</dt><dd>${escapeHtml(entry.installId || "unknown")}</dd>
@@ -272,10 +275,15 @@
     }
     const topCategory = [...categories.entries()].sort((a, b) => b[1] - a[1])[0];
     const contactCount = entries.filter(entry => entry.contact).length;
+    const verdictCounts = countBy(entries.filter(entry => entry.verdict), entry => entry.verdict);
+    const correctCount = verdictCounts.get("correct") || 0;
+    const partlyCount = verdictCounts.get("partly-correct") || 0;
+    const wrongCount = verdictCounts.get("wrong") || 0;
 
     stats.replaceChildren(
       statCard("Total", String(entries.length)),
       statCard("Average rating", averageRating),
+      statCard("Identification", `${correctCount} correct / ${partlyCount} partial / ${wrongCount} wrong`),
       statCard("Top category", topCategory ? `${topCategory[0]} (${topCategory[1]})` : "None"),
       statCard("With contact", String(contactCount))
     );
@@ -286,6 +294,7 @@
     const triage = buildTriage(entries);
     triagePanel.replaceChildren(
       triageColumn("Needs attention", triage.needsAttention),
+      triageColumn("Identification verdicts", triage.verdictLines),
       triageColumn("Repeated categories", triage.categoryLines),
       triageColumn("Pages mentioned", triage.pageLines)
     );
@@ -311,7 +320,9 @@
     const normalized = Array.isArray(entries) ? entries : [];
     const categoryCounts = countBy(normalized, entry => entry.category || "general");
     const pageCounts = countBy(normalized, entry => entry.page || "not provided");
+    const verdictCounts = countBy(normalized.filter(entry => entry.verdict), entry => formatVerdict(entry.verdict));
     const lowRatings = normalized.filter(entry => Number(entry.rating) > 0 && Number(entry.rating) <= 2);
+    const wrongResults = normalized.filter(entry => entry.verdict === "wrong");
     const bugs = normalized.filter(entry => /bug|crash|error|broken|does not|did not|wrong|uncertain/i.test(`${entry.category || ""} ${entry.message || ""}`));
     const contactCount = normalized.filter(entry => entry.contact).length;
     const ratingValues = normalized.map(entry => Number(entry.rating)).filter(Number.isFinite);
@@ -325,14 +336,17 @@
       averageRating,
       contactCount,
       lowRatingCount: lowRatings.length,
+      wrongResultCount: wrongResults.length,
       bugSignalCount: bugs.length,
       needsAttention: [
         `${lowRatings.length} low-rating entries`,
+        `${wrongResults.length} explicitly wrong identifications`,
         `${bugs.length} bug/wrong-result signals`,
         `${contactCount} entries with contact email`,
         averageRating === "none" ? "No ratings collected yet" : `Average rating ${averageRating} / 5`
       ],
       categoryLines: topCountLines(categoryCounts),
+      verdictLines: topCountLines(verdictCounts),
       pageLines: topCountLines(pageCounts),
       lowRatings: lowRatings.slice().reverse().slice(0, 8),
       bugSignals: bugs.slice().reverse().slice(0, 8)
@@ -347,11 +361,15 @@
       `Entries: ${triage.total}`,
       `Average rating: ${triage.averageRating}`,
       `Low-rating entries: ${triage.lowRatingCount}`,
+      `Explicitly wrong identifications: ${triage.wrongResultCount}`,
       `Bug/wrong-result signals: ${triage.bugSignalCount}`,
       `Entries with contact email: ${triage.contactCount}`,
       "",
       "Repeated categories:",
       ...prefixLines(triage.categoryLines),
+      "",
+      "Identification verdicts:",
+      ...prefixLines(triage.verdictLines),
       "",
       "Pages mentioned:",
       ...prefixLines(triage.pageLines),
@@ -388,7 +406,7 @@
   function feedbackLines(entries) {
     if (!entries.length) return ["- None"];
     return entries.map(entry => [
-      `- ${entry.createdAt || "unknown date"} | ${entry.category || "general"} | rating ${entry.rating || "none"} | ${entry.page || "not provided"}`,
+      `- ${entry.createdAt || "unknown date"} | ${entry.category || "general"} | ${formatVerdict(entry.verdict)} | rating ${entry.rating || "none"} | ${entry.page || "not provided"}`,
       `  ${String(entry.message || "").replace(/\s+/g, " ").trim().slice(0, 220)}`
     ].join("\n"));
   }
@@ -415,15 +433,19 @@
     const query = (searchInput?.value || "").trim().toLowerCase();
     const category = categoryFilter?.value || "";
     const rating = ratingFilter?.value || "";
+    const verdict = verdictFilter?.value || "";
 
     return entries.filter(entry => {
       if (category && (entry.category || "general") !== category) return false;
       const entryRating = entry.rating ? String(entry.rating) : "none";
       if (rating && entryRating !== rating) return false;
+      const entryVerdict = entry.verdict || "none";
+      if (verdict && entryVerdict !== verdict) return false;
       if (!query) return true;
       const haystack = [
         entry.id,
         entry.category,
+        entry.verdict,
         entry.page,
         entry.message,
         entry.contact,
@@ -437,7 +459,7 @@
   }
 
   function buildCsv(entries) {
-    const columns = ["id", "createdAt", "category", "rating", "page", "message", "contact", "installId", "appVersion", "screen", "browserOnline", "userAgent"];
+    const columns = ["id", "createdAt", "category", "rating", "verdict", "page", "message", "contact", "installId", "appVersion", "screen", "browserOnline", "userAgent"];
     const rows = [columns.join(",")];
     for (const entry of entries) {
       rows.push(columns.map(column => csvCell(entry[column])).join(","));
@@ -470,6 +492,15 @@
     if (!value) return "unknown date";
     const date = new Date(value);
     return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
+  }
+
+  function formatVerdict(value) {
+    const labels = {
+      correct: "Correct",
+      "partly-correct": "Partly correct",
+      wrong: "Wrong"
+    };
+    return labels[value] || "Not provided";
   }
 
   function escapeHtml(value) {

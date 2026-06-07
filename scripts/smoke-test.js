@@ -1,5 +1,6 @@
 const { spawn } = require("child_process");
 const fs = require("fs");
+const http = require("http");
 const net = require("net");
 const path = require("path");
 
@@ -11,6 +12,9 @@ const originalFeedback = readExistingFeedback();
 let port = 0;
 let baseUrl = "";
 let child = null;
+let webhookServer = null;
+let webhookPort = 0;
+const webhookEvents = [];
 let output = "";
 
 runSmokeTest()
@@ -26,7 +30,11 @@ runSmokeTest()
 
 async function runSmokeTest() {
   port = await resolvePort();
+  do {
+    webhookPort = await resolvePort();
+  } while (webhookPort === port);
   baseUrl = `http://127.0.0.1:${port}`;
+  webhookServer = await startWebhookServer(webhookPort);
   child = spawn(process.execPath, ["server.js"], {
     cwd: root,
     env: {
@@ -40,6 +48,8 @@ async function runSmokeTest() {
       PRIVACY_PUBLICATION_DATE: "2026-06-02",
       BETA_ACCESS_CODE: betaCode,
       FEEDBACK_ADMIN_CODE: adminCode,
+      AUTOMATION_FEEDBACK_WEBHOOK_URL: `http://127.0.0.1:${webhookPort}/feedback`,
+      AUTOMATION_WEBHOOK_SECRET: "smoke-automation-secret",
       GEMINI_API_KEY: process.env.GEMINI_API_KEY || "smoke-test-placeholder"
     },
     stdio: ["ignore", "pipe", "pipe"]
@@ -62,6 +72,7 @@ async function main() {
   assert(health.ok === true, "Health endpoint did not report ok.");
   assert(health.appMode === "production", "Smoke server did not start in production mode.");
   assert(health.betaAccessRequired === true, "Beta access should be required during smoke test.");
+  assert(health.automation?.feedbackWebhookConfigured === true, "Feedback automation webhook should be configured during smoke test.");
 
   const preflight = await getJson("/api/preflight");
   assert(Array.isArray(preflight.checks), "Preflight checks are missing.");
@@ -110,6 +121,7 @@ async function main() {
     {
       category: "bug",
       rating: "4",
+      verdict: "partly-correct",
       page: "smoke test",
       message: "Smoke test feedback entry with enough useful detail.",
       appVersion: "smoke-test"
@@ -117,6 +129,13 @@ async function main() {
     { "X-TechSpec-Beta-Code": betaCode }
   );
   assert(sentFeedback.status === 200 && sentFeedback.body?.id, "Feedback submission failed.");
+  const webhookEvent = await waitForWebhookEvent();
+  assert(webhookEvent?.body?.event === "beta_feedback_received", "Automation webhook did not receive the feedback event.");
+  assert(webhookEvent?.body?.feedback?.verdict === "partly-correct", "Automation webhook did not preserve the verdict.");
+  assert(webhookEvent?.headers?.["x-techspec-automation-secret"] === "smoke-automation-secret", "Automation webhook secret header is missing.");
+  const webhookText = JSON.stringify(webhookEvent.body);
+  assert(!webhookText.includes(betaCode), "Automation webhook exposed the beta access code.");
+  assert(!webhookText.includes(adminCode), "Automation webhook exposed the feedback admin code.");
 
   const exported = await fetch(`${baseUrl}/api/feedback/export`, {
     headers: { "X-TechSpec-Admin-Code": adminCode }
@@ -127,6 +146,8 @@ async function main() {
     Array.isArray(exportBody.feedback) && exportBody.feedback.some(entry => entry.id === sentFeedback.body.id),
     "Export did not include the smoke feedback entry."
   );
+  const exportedEntry = exportBody.feedback.find(entry => entry.id === sentFeedback.body.id);
+  assert(exportedEntry?.verdict === "partly-correct", "Export did not preserve the structured identification verdict.");
 
   const deleted = await postJson(
     "/api/feedback/delete",
@@ -155,6 +176,45 @@ function resolvePort() {
       });
     });
   });
+}
+
+function startWebhookServer(selectedPort) {
+  return new Promise((resolve, reject) => {
+    const receiver = http.createServer((req, res) => {
+      let body = "";
+      req.setEncoding("utf8");
+      req.on("data", chunk => {
+        body += chunk;
+      });
+      req.on("end", () => {
+        let parsed = null;
+        try {
+          parsed = JSON.parse(body);
+        } catch {
+          parsed = null;
+        }
+        webhookEvents.push({
+          method: req.method,
+          url: req.url,
+          headers: req.headers,
+          body: parsed
+        });
+        res.writeHead(204);
+        res.end();
+      });
+    });
+    receiver.on("error", reject);
+    receiver.listen(selectedPort, "127.0.0.1", () => resolve(receiver));
+  });
+}
+
+async function waitForWebhookEvent() {
+  const deadline = Date.now() + 3000;
+  while (Date.now() < deadline) {
+    if (webhookEvents.length) return webhookEvents[0];
+    await sleep(50);
+  }
+  throw new Error("Automation webhook did not receive feedback in time.");
 }
 
 async function waitForServer() {
@@ -218,6 +278,7 @@ function restoreFeedback() {
 function cleanup(exitCode) {
   restoreFeedback();
   if (child) child.kill();
+  if (webhookServer) webhookServer.close();
   setTimeout(() => process.exit(exitCode), 100);
 }
 

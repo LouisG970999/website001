@@ -17,10 +17,26 @@ services:
         sync: false
       - key: SUPPORT_WEBSITE
         sync: false
+      - key: SUPPORT_BETA_GUIDE_URL
+        sync: false
+      - key: SUPPORT_PRIVACY_URL
+        sync: false
+      - key: SUPPORT_TERMS_URL
+        sync: false
+      - key: SUPPORT_LEGAL_URL
+        sync: false
+      - key: SUPPORT_FEEDBACK_URL
+        sync: false
       - key: PUBLISHER_NAME
         sync: false
       - key: PRIVACY_PUBLICATION_DATE
         sync: false
+      - key: AUTOMATION_FEEDBACK_WEBHOOK_URL
+        sync: false
+      - key: AUTOMATION_WEBHOOK_SECRET
+        sync: false
+      - key: AUTOMATION_WEBHOOK_TIMEOUT_MS
+        value: 2500
       - key: GEMINI_API_KEY
         sync: false
       - key: BETA_ACCESS_CODE

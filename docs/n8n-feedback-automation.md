@@ -27,7 +27,7 @@ AUTOMATION_WEBHOOK_TIMEOUT_MS=2500
 
 Notes:
 
-- `AUTOMATION_FEEDBACK_WEBHOOK_URL` must use HTTPS in production.
+- `AUTOMATION_FEEDBACK_WEBHOOK_URL` must use HTTPS in production. Plain HTTP is accepted only for loopback addresses such as `localhost` during local testing.
 - `AUTOMATION_WEBHOOK_SECRET` is sent as the `X-TechSpec-Automation-Secret` header.
 - If the webhook fails, tester feedback still saves locally and the user does not see an error.
 - The webhook payload does not include Gemini API keys, beta access codes, or feedback admin codes.
@@ -39,7 +39,7 @@ Notes:
   "event": "beta_feedback_received",
   "sentAt": "2026-06-05T12:00:00.000Z",
   "appName": "TechSpec Scanner",
-  "serverVersion": "20260605-5",
+  "serverVersion": "20260607-1",
   "appMode": "production",
   "publicBaseUrl": "https://techspec-scanner-beta.onrender.com",
   "feedback": {
@@ -48,10 +48,11 @@ Notes:
     "installId": "anonymous-install-id",
     "category": "bug",
     "rating": 4,
+    "verdict": "partly-correct",
     "page": "scan",
     "message": "Tester message",
     "contact": "tester@example.com",
-    "appVersion": "20260605-5",
+    "appVersion": "20260607-1",
     "browserOnline": true,
     "screen": "390x844",
     "userAgent": "browser user agent"

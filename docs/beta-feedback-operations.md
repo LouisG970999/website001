@@ -31,8 +31,9 @@ Do not share the admin page or `FEEDBACK_ADMIN_CODE` with testers.
 3. Check the Beta health panel.
 4. Load feedback.
 5. Filter for low ratings, wrong identifications, and bug reports.
-6. Export CSV before making larger product decisions.
-7. Delete only duplicate test entries, spam, or entries a tester asks you to remove.
+6. Compare the structured identification verdicts: correct, partly correct, wrong, and not provided.
+7. Export CSV before making larger product decisions.
+8. Delete only duplicate test entries, spam, or entries a tester asks you to remove.
 
 ## Local Release Smoke Test
 

@@ -10,7 +10,7 @@ const usageFile = path.join(dataDir, "usage.json");
 const feedbackFile = path.join(dataDir, "feedback.json");
 loadEnv(path.join(root, ".env"));
 
-const SERVER_VERSION = "20260605-5";
+const SERVER_VERSION = "20260607-1";
 const SERVER_STARTED_AT = new Date().toISOString();
 const PORT = Number(process.env.PORT || 3000);
 const APP_MODE = normalizeAppMode(process.env.APP_MODE);
@@ -228,6 +228,7 @@ async function handleFeedback(req, res) {
     installId,
     category: sanitizeText(body.category, 48) || "general",
     rating: clampNumber(body.rating, 1, 5) || null,
+    verdict: normalizeFeedbackVerdict(body.verdict),
     page: sanitizeText(body.page, 80),
     message: sanitizeText(body.message, 2400),
     contact: sanitizeText(body.contact, 160),
@@ -1008,6 +1009,11 @@ function clampNumber(value, min, max) {
   return Math.min(max, Math.max(min, number));
 }
 
+function normalizeFeedbackVerdict(value) {
+  const normalized = String(value || "").trim().toLowerCase();
+  return new Set(["correct", "partly-correct", "wrong"]).has(normalized) ? normalized : null;
+}
+
 function defaultUsage() {
   const keys = currentUsageKeys();
   return {
@@ -1258,6 +1264,7 @@ async function notifyFeedbackAutomation(entry, req) {
       installId: entry.installId,
       category: entry.category,
       rating: entry.rating,
+      verdict: entry.verdict,
       page: entry.page,
       message: entry.message,
       contact: entry.contact,
@@ -1309,7 +1316,8 @@ function parseWebhookUrl(value) {
   if (!raw) return null;
   try {
     const parsed = new URL(raw);
-    return parsed.protocol === "https:" || (APP_MODE !== "production" && parsed.protocol === "http:")
+    const isLoopback = ["localhost", "127.0.0.1", "::1"].includes(parsed.hostname);
+    return parsed.protocol === "https:" || (parsed.protocol === "http:" && (APP_MODE !== "production" || isLoopback))
       ? parsed
       : null;
   } catch {
