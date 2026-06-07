@@ -1,6 +1,6 @@
 # TechSpec Scanner App Store Submission Checklist
 
-Last updated: 2026-06-01
+Last updated: 2026-06-07
 
 This checklist is a practical release-preparation aid, not legal advice. Re-check Apple documentation and final business/legal details before submitting.
 
@@ -125,11 +125,14 @@ The app sends user-selected mechanical component photos and context to a backend
 ## Pre-Submission Blockers
 
 - [ ] Final legal publisher name.
-- [ ] Final support email.
+- [x] Support email configured as `support@techspecscanner.com`.
 - [ ] Final public domain.
 - [ ] Final privacy policy, terms, and legal notice reviewed.
 - [ ] Persistent storage decision for feedback/usage if beta grows.
 - [ ] Billing alerts and Gemini quota strategy.
 - [ ] App Store screenshots from the final production build.
 - [ ] Native iOS packaging route decided.
+- [x] Initial native packaging route documented in `docs/ios-packaging-handoff.md`.
+- [x] 1024 x 1024 release icon asset prepared.
+- [x] App Store privacy worksheet prepared from current app behavior.
 - [ ] Device testing on at least one current iPhone and one older supported iPhone.

@@ -1,6 +1,6 @@
 # TechSpec Scanner Privacy Policy Draft
 
-Last updated: [add date]
+Last updated: 2026-06-07
 
 This is a draft for publication review. It is not legal advice. Before App Store release, replace all placeholders and have the final wording checked for your region and business setup.
 
@@ -96,9 +96,9 @@ TechSpec Scanner is intended for technical and professional use and is not direc
 
 For privacy questions, contact:
 
-[Your name/company]  
-[support email]  
-[support website]
+TechSpec Scanner<br>
+support@techspecscanner.com<br>
+https://techspec-scanner-beta.onrender.com/support/
 
 ## Sources To Review Before Publishing
 

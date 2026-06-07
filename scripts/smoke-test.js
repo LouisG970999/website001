@@ -44,6 +44,7 @@ async function runSmokeTest() {
       PUBLIC_BASE_URL: "https://techspec-smoke.example",
       SUPPORT_EMAIL: "support@techspec-smoke.example",
       SUPPORT_WEBSITE: "https://techspec-smoke.example/support/",
+      SUPPORT_PRIVACY_CHOICES_URL: "https://techspec-smoke.example/support/privacy-choices.html",
       PUBLISHER_NAME: "TechSpec Smoke Publisher",
       PRIVACY_PUBLICATION_DATE: "2026-06-02",
       BETA_ACCESS_CODE: betaCode,
@@ -72,12 +73,14 @@ async function main() {
   assert(health.ok === true, "Health endpoint did not report ok.");
   assert(health.appMode === "production", "Smoke server did not start in production mode.");
   assert(health.betaAccessRequired === true, "Beta access should be required during smoke test.");
+  assert(Array.isArray(health.localAccessUrls) && health.localAccessUrls.length === 0, "Production health endpoint exposed local network addresses.");
   assert(health.automation?.feedbackWebhookConfigured === true, "Feedback automation webhook should be configured during smoke test.");
 
   const preflight = await getJson("/api/preflight");
   assert(Array.isArray(preflight.checks), "Preflight checks are missing.");
   assert(preflight.support?.pagesAvailable === true, "Support pages are not all available.");
   assert(preflight.support?.privacyUrlConfigured === true, "Privacy URL should resolve from PUBLIC_BASE_URL.");
+  assert(preflight.support?.privacyChoicesUrlConfigured === true, "Privacy choices URL should resolve from PUBLIC_BASE_URL.");
   assert(preflight.support?.termsUrlConfigured === true, "Terms URL should resolve from PUBLIC_BASE_URL.");
   assert(preflight.support?.websiteConfigured === true, "Support URL should resolve from PUBLIC_BASE_URL.");
   assert(preflight.support?.emailConfigured === true, "Support email should use the hosted environment override.");
@@ -88,6 +91,11 @@ async function main() {
   const supportConfigText = await supportConfig.text();
   assert(supportConfigText.includes("support@techspec-smoke.example"), "Generated support config is missing SUPPORT_EMAIL.");
   assert(supportConfigText.includes("TechSpec Smoke Publisher"), "Generated support config is missing PUBLISHER_NAME.");
+  assert(supportConfigText.includes("/support/privacy-choices.html"), "Generated support config is missing the privacy choices URL.");
+
+  const privacyChoicesPage = await fetch(`${baseUrl}/support/privacy-choices.html`);
+  assert(privacyChoicesPage.status === 200, "Privacy choices page did not load.");
+  assert((await privacyChoicesPage.text()).includes("Your data choices"), "Privacy choices page content is missing.");
 
   const adminPage = await fetch(`${baseUrl}/support/admin-feedback.html`);
   assert(adminPage.status === 200, "Admin feedback page did not load.");
@@ -105,6 +113,8 @@ async function main() {
     /noindex/i.test(appShell.headers.get("x-robots-tag") || ""),
     "Private beta app shell is missing noindex X-Robots-Tag."
   );
+  assert(appShell.headers.get("x-frame-options") === "DENY", "App shell is missing X-Frame-Options protection.");
+  assert(appShell.headers.get("cross-origin-opener-policy") === "same-origin", "App shell is missing Cross-Origin-Opener-Policy.");
 
   const robots = await fetch(`${baseUrl}/robots.txt`);
   assert(robots.status === 200, "robots.txt did not load.");

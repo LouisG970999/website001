@@ -1,14 +1,15 @@
-const CACHE_NAME = "techspec-scanner-v82";
+const CACHE_NAME = "techspec-scanner-v83";
 const APP_SHELL = [
   "/",
   "/index.html",
-  "/styles.css?v=20260607-1",
-  "/app.js?v=20260607-1",
+  "/styles.css?v=20260607-2",
+  "/app.js?v=20260607-2",
   "/manifest.webmanifest",
   "/support/",
   "/support/admin-feedback.html",
   "/support/beta.html",
   "/support/privacy.html",
+  "/support/privacy-choices.html",
   "/support/terms.html",
   "/support/legal.html",
   "/support/feedback.html",
@@ -19,7 +20,8 @@ const APP_SHELL = [
   "/support/feedback.js",
   "/Logo_TechSpec_Scanner.png",
   "/icons/icon-192.png",
-  "/icons/icon-512.png"
+  "/icons/icon-512.png",
+  "/icons/icon-1024.png"
 ];
 
 self.addEventListener("install", event => {

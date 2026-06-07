@@ -89,7 +89,7 @@ TechSpec Scanner Support
 
 For help, feedback, or privacy questions, contact:
 
-[support email]
+support@techspecscanner.com
 
 Please include:
 

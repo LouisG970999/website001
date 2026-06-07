@@ -21,6 +21,8 @@ services:
         sync: false
       - key: SUPPORT_PRIVACY_URL
         sync: false
+      - key: SUPPORT_PRIVACY_CHOICES_URL
+        sync: false
       - key: SUPPORT_TERMS_URL
         sync: false
       - key: SUPPORT_LEGAL_URL

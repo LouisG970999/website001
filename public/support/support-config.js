@@ -1,12 +1,13 @@
 window.TechSpecSupport = {
   appName: "TechSpec Scanner",
   publisherName: "TechSpec Scanner",
-  supportEmail: "support@example.com",
-  supportWebsite: "/support/",
-  betaGuideUrl: "/support/beta.html",
-  privacyUrl: "/support/privacy.html",
-  termsUrl: "/support/terms.html",
-  legalUrl: "/support/legal.html",
-  feedbackUrl: "/support/feedback.html",
-  publicationDate: "Draft"
+  supportEmail: "support@techspecscanner.com",
+  supportWebsite: "https://techspec-scanner-beta.onrender.com/support/",
+  betaGuideUrl: "https://techspec-scanner-beta.onrender.com/support/beta.html",
+  privacyUrl: "https://techspec-scanner-beta.onrender.com/support/privacy.html",
+  privacyChoicesUrl: "https://techspec-scanner-beta.onrender.com/support/privacy-choices.html",
+  termsUrl: "https://techspec-scanner-beta.onrender.com/support/terms.html",
+  legalUrl: "https://techspec-scanner-beta.onrender.com/support/legal.html",
+  feedbackUrl: "https://techspec-scanner-beta.onrender.com/support/feedback.html",
+  publicationDate: "2026-06-07"
 };

@@ -10,7 +10,7 @@ const usageFile = path.join(dataDir, "usage.json");
 const feedbackFile = path.join(dataDir, "feedback.json");
 loadEnv(path.join(root, ".env"));
 
-const SERVER_VERSION = "20260607-1";
+const SERVER_VERSION = "20260607-2";
 const SERVER_STARTED_AT = new Date().toISOString();
 const PORT = Number(process.env.PORT || 3000);
 const APP_MODE = normalizeAppMode(process.env.APP_MODE);
@@ -63,7 +63,7 @@ const server = http.createServer(async (req, res) => {
         betaAccessRequired: isBetaAccessRequired(),
         serverVersion: SERVER_VERSION,
         startedAt: SERVER_STARTED_AT,
-        localAccessUrls: getLocalAccessUrls(),
+        localAccessUrls: getPublicLocalAccessUrls(),
         usage: getUsageSnapshot(undefined, installId),
         automation: getAutomationSnapshot(),
         preflight: getPreflightSnapshot(req)
@@ -1102,6 +1102,12 @@ function getPreflightSnapshot(req) {
       message: support.privacyUrlConfigured ? "Privacy policy URL is configured." : "Privacy policy URL still points to a local path."
     },
     {
+      id: "privacy-choices-url",
+      ok: support.privacyChoicesUrlConfigured,
+      severity: "warning",
+      message: support.privacyChoicesUrlConfigured ? "Privacy choices URL is configured." : "Privacy choices URL is not configured."
+    },
+    {
       id: "terms-url",
       ok: support.termsUrlConfigured,
       severity: "critical",
@@ -1129,7 +1135,7 @@ function getPreflightSnapshot(req) {
       id: "support-pages",
       ok: support.pagesAvailable,
       severity: "critical",
-      message: support.pagesAvailable ? "Support, beta guide, privacy, terms, legal, and feedback pages are available." : "A required support/beta/legal/feedback page is missing."
+      message: support.pagesAvailable ? "Support, beta guide, privacy, privacy choices, terms, legal, and feedback pages are available." : "A required support/beta/legal/feedback page is missing."
     },
     {
       id: "beta-access",
@@ -1170,7 +1176,7 @@ function getPreflightSnapshot(req) {
     ok: blockingChecks.length === 0,
     generatedAt: new Date().toISOString(),
     publicBaseUrl: publicBaseUrl || null,
-    localAccessUrls: getLocalAccessUrls(),
+    localAccessUrls: getPublicLocalAccessUrls(),
     serverVersion: SERVER_VERSION,
     appMode: APP_MODE,
     betaAccessRequired: isBetaAccessRequired(),
@@ -1186,6 +1192,7 @@ function readSupportConfigSnapshot() {
   const supportIndexPath = path.join(publicDir, "support", "index.html");
   const betaPath = path.join(publicDir, "support", "beta.html");
   const privacyPath = path.join(publicDir, "support", "privacy.html");
+  const privacyChoicesPath = path.join(publicDir, "support", "privacy-choices.html");
   const termsPath = path.join(publicDir, "support", "terms.html");
   const legalPath = path.join(publicDir, "support", "legal.html");
   const feedbackPath = path.join(publicDir, "support", "feedback.html");
@@ -1193,12 +1200,14 @@ function readSupportConfigSnapshot() {
   const supportEmail = config.supportEmail;
   const supportWebsite = config.supportWebsite;
   const privacyUrl = config.privacyUrl;
+  const privacyChoicesUrl = config.privacyChoicesUrl;
   const termsUrl = config.termsUrl;
   const legalUrl = config.legalUrl;
   const feedbackUrl = config.feedbackUrl;
   const betaGuideUrl = config.betaGuideUrl;
   const resolvedSupportWebsite = resolveConfiguredUrl(supportWebsite, publicBaseUrl);
   const resolvedPrivacyUrl = resolveConfiguredUrl(privacyUrl, publicBaseUrl);
+  const resolvedPrivacyChoicesUrl = resolveConfiguredUrl(privacyChoicesUrl, publicBaseUrl);
   const resolvedTermsUrl = resolveConfiguredUrl(termsUrl, publicBaseUrl);
   const resolvedLegalUrl = resolveConfiguredUrl(legalUrl, publicBaseUrl);
   const resolvedFeedbackUrl = resolveConfiguredUrl(feedbackUrl, publicBaseUrl);
@@ -1210,15 +1219,17 @@ function readSupportConfigSnapshot() {
     websiteConfigured: Boolean(resolvedSupportWebsite),
     betaGuideUrlConfigured: Boolean(resolvedBetaGuideUrl),
     privacyUrlConfigured: Boolean(resolvedPrivacyUrl),
+    privacyChoicesUrlConfigured: Boolean(resolvedPrivacyChoicesUrl),
     termsUrlConfigured: Boolean(resolvedTermsUrl),
     legalUrlConfigured: Boolean(resolvedLegalUrl),
     feedbackUrlConfigured: Boolean(resolvedFeedbackUrl),
     privacyPublished: Boolean(publicationDate && !/^draft$/i.test(publicationDate)),
-    pagesAvailable: fs.existsSync(supportIndexPath) && fs.existsSync(betaPath) && fs.existsSync(privacyPath) && fs.existsSync(termsPath) && fs.existsSync(legalPath) && fs.existsSync(feedbackPath),
+    pagesAvailable: fs.existsSync(supportIndexPath) && fs.existsSync(betaPath) && fs.existsSync(privacyPath) && fs.existsSync(privacyChoicesPath) && fs.existsSync(termsPath) && fs.existsSync(legalPath) && fs.existsSync(feedbackPath),
     resolvedUrls: {
       supportWebsite: resolvedSupportWebsite || null,
       betaGuideUrl: resolvedBetaGuideUrl || null,
       privacyUrl: resolvedPrivacyUrl || null,
+      privacyChoicesUrl: resolvedPrivacyChoicesUrl || null,
       termsUrl: resolvedTermsUrl || null,
       legalUrl: resolvedLegalUrl || null,
       feedbackUrl: resolvedFeedbackUrl || null
@@ -1228,6 +1239,7 @@ function readSupportConfigSnapshot() {
       supportWebsite: !resolvedSupportWebsite,
       betaGuideUrl: !resolvedBetaGuideUrl,
       privacyUrl: !resolvedPrivacyUrl,
+      privacyChoicesUrl: !resolvedPrivacyChoicesUrl,
       termsUrl: !resolvedTermsUrl,
       legalUrl: !resolvedLegalUrl,
       feedbackUrl: !resolvedFeedbackUrl,
@@ -1332,14 +1344,15 @@ function readSupportConfigValues() {
   const fallback = {
     appName: "TechSpec Scanner",
     publisherName: "TechSpec Scanner",
-    supportEmail: "support@example.com",
-    supportWebsite: "/support/",
-    betaGuideUrl: "/support/beta.html",
-    privacyUrl: "/support/privacy.html",
-    termsUrl: "/support/terms.html",
-    legalUrl: "/support/legal.html",
-    feedbackUrl: "/support/feedback.html",
-    publicationDate: "Draft"
+    supportEmail: "support@techspecscanner.com",
+    supportWebsite: "https://techspec-scanner-beta.onrender.com/support/",
+    betaGuideUrl: "https://techspec-scanner-beta.onrender.com/support/beta.html",
+    privacyUrl: "https://techspec-scanner-beta.onrender.com/support/privacy.html",
+    privacyChoicesUrl: "https://techspec-scanner-beta.onrender.com/support/privacy-choices.html",
+    termsUrl: "https://techspec-scanner-beta.onrender.com/support/terms.html",
+    legalUrl: "https://techspec-scanner-beta.onrender.com/support/legal.html",
+    feedbackUrl: "https://techspec-scanner-beta.onrender.com/support/feedback.html",
+    publicationDate: "2026-06-07"
   };
   const values = {};
   for (const key of Object.keys(fallback)) {
@@ -1352,6 +1365,7 @@ function readSupportConfigValues() {
     supportWebsite: process.env.SUPPORT_WEBSITE,
     betaGuideUrl: process.env.SUPPORT_BETA_GUIDE_URL,
     privacyUrl: process.env.SUPPORT_PRIVACY_URL || process.env.PRIVACY_POLICY_URL,
+    privacyChoicesUrl: process.env.SUPPORT_PRIVACY_CHOICES_URL || process.env.PRIVACY_CHOICES_URL,
     termsUrl: process.env.SUPPORT_TERMS_URL || process.env.TERMS_OF_USE_URL,
     legalUrl: process.env.SUPPORT_LEGAL_URL || process.env.LEGAL_NOTICE_URL,
     feedbackUrl: process.env.SUPPORT_FEEDBACK_URL,
@@ -1361,7 +1375,7 @@ function readSupportConfigValues() {
     if (String(value || "").trim()) values[key] = String(value).trim();
   }
 
-  for (const key of ["supportWebsite", "betaGuideUrl", "privacyUrl", "termsUrl", "legalUrl", "feedbackUrl"]) {
+  for (const key of ["supportWebsite", "betaGuideUrl", "privacyUrl", "privacyChoicesUrl", "termsUrl", "legalUrl", "feedbackUrl"]) {
     values[key] = resolveConfiguredUrl(values[key], publicBaseUrl) || values[key];
   }
 
@@ -1413,9 +1427,16 @@ function securityHeaders() {
       "frame-ancestors 'none'"
     ].join("; "),
     "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Cross-Origin-Opener-Policy": "same-origin",
+    "Cross-Origin-Resource-Policy": "same-origin",
     "Referrer-Policy": "no-referrer",
     "Permissions-Policy": "geolocation=(), microphone=(), payment=()"
   };
+}
+
+function getPublicLocalAccessUrls() {
+  return APP_MODE === "production" ? [] : getLocalAccessUrls();
 }
 
 function getLocalAccessUrls() {

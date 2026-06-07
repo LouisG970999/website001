@@ -1,14 +1,17 @@
 {
   "name": "TechSpec Scanner",
   "short_name": "TechSpec",
+  "id": "/",
   "description": "AI-assisted mechanical component scanner for photos, reports, and known-parts matching.",
   "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "orientation": "portrait",
   "background_color": "#071d38",
   "theme_color": "#071d38",
   "categories": ["productivity", "utilities"],
+  "prefer_related_applications": false,
   "shortcuts": [
     {
       "name": "Scan component",
@@ -44,6 +47,12 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-1024.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }

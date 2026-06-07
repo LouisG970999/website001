@@ -57,6 +57,7 @@ SUPPORT_EMAIL=support@techspecscanner.com
 SUPPORT_WEBSITE=https://app.techspecscanner.com/support/
 SUPPORT_BETA_GUIDE_URL=https://app.techspecscanner.com/support/beta.html
 SUPPORT_PRIVACY_URL=https://app.techspecscanner.com/support/privacy.html
+SUPPORT_PRIVACY_CHOICES_URL=https://app.techspecscanner.com/support/privacy-choices.html
 SUPPORT_TERMS_URL=https://app.techspecscanner.com/support/terms.html
 SUPPORT_LEGAL_URL=https://app.techspecscanner.com/support/legal.html
 SUPPORT_FEEDBACK_URL=https://app.techspecscanner.com/support/feedback.html
