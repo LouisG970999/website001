@@ -10,7 +10,7 @@ const readinessKey = "component-scanner-readiness-v1";
 const installIdKey = "component-scanner-install-id-v1";
 const safetyAckKey = "component-scanner-safety-ack-v1";
 const betaAccessCodeKey = "techspec-beta-access-code-v1";
-const appBuildVersion = "20260607-2";
+const appBuildVersion = "20260608-1";
 const maxHistoryItems = 8;
 const maxDatabaseMatches = 4;
 const maxTestLogItems = 200;
@@ -451,6 +451,8 @@ const translations = {
     supportContact: "Contact",
     supportContactHelp: "For help, feedback, or privacy questions, use the support contact configured for the public support page.",
     supportPrivacyHelp: "How photos, notes, feedback, and local app data are handled.",
+    privacyChoices: "Data choices",
+    privacyChoicesHelp: "Delete local records, export data, and request help with stored feedback.",
     termsHelp: "Usage rules, AI disclaimer, and user responsibilities.",
     legalHelp: "Publisher, licensing, Creative Commons documentation, and third-party notices.",
     betaFeedback: "Beta feedback",
@@ -918,6 +920,8 @@ const translations = {
     supportContact: "Kontakt",
     supportContactHelp: "Fuer Hilfe, Feedback oder Datenschutzfragen nutze den Supportkontakt der oeffentlichen Supportseite.",
     supportPrivacyHelp: "Wie Fotos, Notizen, Feedback und lokale App-Daten verarbeitet werden.",
+    privacyChoices: "Datenoptionen",
+    privacyChoicesHelp: "Lokale Daten loeschen, Daten exportieren und Hilfe zu gespeichertem Feedback anfordern.",
     termsHelp: "Nutzungsregeln, KI-Hinweis und Verantwortung der Nutzer.",
     legalHelp: "Herausgeber, Lizenzierung, Creative-Commons-Dokumentation und Drittanbieterhinweise.",
     betaFeedback: "Beta-Feedback",
@@ -1388,6 +1392,8 @@ translations.fr = {
   supportContact: "Contact",
   supportContactHelp: "Pour aide, retour ou questions de confidentialite, utilisez le contact configure sur la page support publique.",
   supportPrivacyHelp: "Comment les photos, notes, retours et donnees locales de l'app sont traites.",
+  privacyChoices: "Choix des donnees",
+  privacyChoicesHelp: "Supprimez les donnees locales, exportez-les et demandez de l'aide pour les retours stockes.",
   termsHelp: "Regles d'utilisation, avertissement IA et responsabilites utilisateur.",
   legalHelp: "Editeur, licences, documentation Creative Commons et avis tiers.",
   betaFeedback: "Feedback beta",
@@ -1811,6 +1817,8 @@ translations.es = {
   supportContact: "Contacto",
   supportContactHelp: "Para ayuda, comentarios o privacidad, usa el contacto configurado en la pagina publica de soporte.",
   supportPrivacyHelp: "Como se manejan fotos, notas, feedback y datos locales de la app.",
+  privacyChoices: "Opciones de datos",
+  privacyChoicesHelp: "Elimina datos locales, exporta registros y solicita ayuda con feedback almacenado.",
   termsHelp: "Reglas de uso, aviso de IA y responsabilidades del usuario.",
   legalHelp: "Editor, licencias, documentacion Creative Commons y avisos de terceros.",
   betaFeedback: "Feedback beta",
@@ -3181,7 +3189,7 @@ function buildPrivacySummaryText() {
 
 function buildTestFlightText() {
   return [
-    "TechSpec Scanner - TestFlight Draft",
+    "TechSpec Scanner - TestFlight Submission Text",
     "",
     "Beta description:",
     "TechSpec Scanner is an AI-assisted tool for documenting and identifying mechanical components from photos. Testers can scan parts, review suggested identification details, export reports, and send feedback about accuracy, usability, and unclear results.",
@@ -3202,7 +3210,7 @@ function buildTestFlightText() {
 
 function buildStoreListingText() {
   return [
-    "TechSpec Scanner - App Store Listing Draft",
+    "TechSpec Scanner - App Store Listing",
     "",
     "Name:",
     "TechSpec Scanner",
@@ -3242,7 +3250,7 @@ function buildStoreListingText() {
 }
 
 function buildProductionEnvTemplate() {
-  const publicBaseUrl = latestHealth?.preflight?.publicBaseUrl || "https://your-production-domain.example";
+  const publicBaseUrl = latestHealth?.preflight?.publicBaseUrl || window.location.origin;
   return [
     "# TechSpec Scanner production backend environment",
     "# Do not paste real secrets into frontend files or public repositories.",
@@ -3250,15 +3258,16 @@ function buildProductionEnvTemplate() {
     "PORT=3000",
     "APP_MODE=production",
     `PUBLIC_BASE_URL=${publicBaseUrl}`,
-    "SUPPORT_EMAIL=support@your-production-domain.example",
+    "SUPPORT_EMAIL=support@techspecscanner.com",
     `SUPPORT_WEBSITE=${publicBaseUrl}/support/`,
     `SUPPORT_BETA_GUIDE_URL=${publicBaseUrl}/support/beta.html`,
     `SUPPORT_PRIVACY_URL=${publicBaseUrl}/support/privacy.html`,
+    `SUPPORT_PRIVACY_CHOICES_URL=${publicBaseUrl}/support/privacy-choices.html`,
     `SUPPORT_TERMS_URL=${publicBaseUrl}/support/terms.html`,
     `SUPPORT_LEGAL_URL=${publicBaseUrl}/support/legal.html`,
     `SUPPORT_FEEDBACK_URL=${publicBaseUrl}/support/feedback.html`,
     "PUBLISHER_NAME=TechSpec Scanner",
-    "PRIVACY_PUBLICATION_DATE=2026-06-05",
+    "PRIVACY_PUBLICATION_DATE=2026-06-07",
     "GEMINI_API_KEY=replace_with_production_secret_in_host_dashboard",
     "BETA_ACCESS_CODE=private_beta_code_if_beta_is_enabled",
     "FEEDBACK_ADMIN_CODE=private_owner_only_feedback_code",
@@ -3283,16 +3292,17 @@ function buildProductionEnvTemplate() {
 }
 
 function buildSupportConfigTemplate() {
-  const publicBaseUrl = latestHealth?.preflight?.publicBaseUrl || "https://your-production-domain.example";
+  const publicBaseUrl = latestHealth?.preflight?.publicBaseUrl || window.location.origin;
   const today = new Date().toISOString().slice(0, 10);
   return [
     "window.TechSpecSupport = {",
     '  appName: "TechSpec Scanner",',
     '  publisherName: "TechSpec Scanner",',
-    '  supportEmail: "support@your-production-domain.example",',
+    '  supportEmail: "support@techspecscanner.com",',
     `  supportWebsite: "${publicBaseUrl}/support/",`,
     `  betaGuideUrl: "${publicBaseUrl}/support/beta.html",`,
     `  privacyUrl: "${publicBaseUrl}/support/privacy.html",`,
+    `  privacyChoicesUrl: "${publicBaseUrl}/support/privacy-choices.html",`,
     `  termsUrl: "${publicBaseUrl}/support/terms.html",`,
     `  legalUrl: "${publicBaseUrl}/support/legal.html",`,
     `  feedbackUrl: "${publicBaseUrl}/support/feedback.html",`,
@@ -3327,10 +3337,9 @@ function buildReleaseChecklistText() {
     ...readinessLines,
     "",
     "## Required Before Public Submission",
-    "- [ ] Replace support@example.com with the final support email.",
-    "- [ ] Publish the support page and privacy policy over HTTPS.",
-    "- [ ] Publish the Terms of Use page over HTTPS.",
-    "- [ ] Replace support-config.js with final public support/privacy/terms URLs.",
+    "- [x] Support email is configured.",
+    "- [x] Support, privacy, data choices, terms, and legal pages are published over HTTPS.",
+    "- [x] Hosted support metadata is configured.",
     "- [ ] Confirm final publisher/business name.",
     "- [ ] Confirm App Store privacy labels match actual production behavior.",
     "- [ ] Confirm Google Cloud billing alerts and Gemini quotas are active.",
@@ -3344,10 +3353,10 @@ function buildReleaseChecklistText() {
     "- [ ] Verify all AI disclaimers and acknowledgement flow on a fresh install.",
     "",
     "## Production Backend",
-    "- [ ] Deploy backend to a production host.",
-    "- [ ] Use HTTPS only.",
-    "- [ ] Store Gemini API key as a server-side secret.",
-    "- [ ] Enable request body limits, rate limits, daily/monthly limits, and monitoring.",
+    "- [x] Backend is deployed to an HTTPS host.",
+    "- [x] Gemini API key is stored as a server-side secret.",
+    "- [x] Request body limits, rate limits, and daily/monthly limits are enabled.",
+    "- [ ] Confirm production monitoring and billing alerts.",
     "- [ ] Test Gemini auth, quota, network, server, and invalid image error paths.",
     "",
     "## TestFlight Draft",

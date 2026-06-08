@@ -1,6 +1,6 @@
 # TechSpec Scanner App Store Submission Checklist
 
-Last updated: 2026-06-07
+Last updated: 2026-06-08
 
 This checklist is a practical release-preparation aid, not legal advice. Re-check Apple documentation and final business/legal details before submitting.
 
@@ -27,41 +27,42 @@ This positioning should stay consistent across:
 
 ### App completeness
 
-- [ ] Final app loads without local laptop dependency.
+- [x] Hosted beta loads without a local laptop dependency.
 - [ ] Backend is running and stable during review.
-- [ ] Support URL, privacy URL, and terms/legal pages load over HTTPS.
-- [ ] No placeholder text remains in user-facing production pages.
-- [ ] No developer-only test tools are visible in production.
+- [x] Support URL, privacy URL, data choices URL, and terms/legal pages load over HTTPS.
+- [x] Automated public placeholder scan passes.
+- [x] Production mode hides developer-only test tools.
 - [ ] If login/accounts are added, provide Apple with a demo account.
 
 ### Accurate metadata
 
-- [ ] App Store description clearly says AI-assisted, not guaranteed identification.
+- [x] App Store description clearly says AI-assisted, not guaranteed identification.
 - [ ] Screenshots show the real app experience.
-- [ ] The app does not imply certified safety, repair, or purchasing decisions.
+- [x] App and release copy do not imply certified safety, repair, or purchasing decisions.
 - [ ] Privacy labels match final behavior, including Google Gemini processing.
 - [ ] Any paid plan, subscription, or scan pack is fully functional and visible if included.
 
 ### Privacy and consent
 
-- [ ] Privacy policy is linked in App Store Connect and easily accessible inside the app.
-- [ ] Privacy policy explains photos, notes, measurements, anonymous install ID, usage counters, feedback, and third-party AI processing.
+- [ ] Privacy policy is linked in App Store Connect after the app record is created.
+- [x] Privacy policy is easily accessible inside the app.
+- [x] Privacy policy explains photos, notes, measurements, anonymous install ID, usage counters, feedback, and third-party AI processing.
 - [ ] Data retention/deletion wording is finalized.
-- [ ] User can understand that images/context may be sent to Google Gemini through the backend.
+- [x] Users are told that images/context may be sent to Google Gemini through the backend.
 - [ ] No tracking is declared unless cross-app/site tracking or advertising is intentionally added.
 
 ### AI and safety
 
-- [ ] AI acknowledgement appears before first use.
-- [ ] Results include confidence/uncertainty and missing evidence.
+- [x] AI acknowledgement appears before first use.
+- [x] Results include confidence/uncertainty and missing evidence.
 - [ ] Result exports keep AI/verification wording.
-- [ ] Terms/disclaimer say users must verify with measurements, markings, documentation, and professional judgment.
-- [ ] The app is not marketed for safety-critical decisions as a sole source.
+- [x] Terms/disclaimer say users must verify with measurements, markings, documentation, and professional judgment.
+- [x] The app is not marketed for safety-critical decisions as a sole source.
 
 ### Intellectual property and licensing
 
-- [ ] App source code, backend, logo, app icon, brand name, app UI, website design, App Store screenshots, and marketing assets are treated as all rights reserved.
-- [ ] Creative Commons is not used as the app/source-code/logo license.
+- [x] App source code, backend, logo, app icon, brand name, app UI, website design, App Store screenshots, and marketing assets are treated as all rights reserved.
+- [x] Creative Commons is not used as the app/source-code/logo license.
 - [ ] Any separate school, demonstration, or project documentation that uses Creative Commons states: `CC BY-NC-ND 4.0 Attribution-NonCommercial-NoDerivatives 4.0 International`.
 - [ ] CC BY-NC-ND or other NonCommercial/NoDerivatives third-party material is not included in the commercial app UI, source code, logo, editable assets, screenshots, or paid marketing material without separate permission.
 - [ ] Third-party services, images, fonts, datasets, libraries, and examples are listed in the legal notice before public release.
@@ -97,12 +98,12 @@ Apple notes that TestFlight can distribute beta builds and collect feedback, inc
 
 Prepare:
 
-- [ ] Beta app description.
-- [ ] What to test instructions.
-- [ ] Support/feedback email.
-- [ ] Review notes explaining backend/Gemini/API-key architecture.
+- [x] Beta app description.
+- [x] What to test instructions.
+- [x] Support/feedback email.
+- [x] Review notes explaining backend/Gemini/API-key architecture.
 - [ ] Demo access instructions or beta access code if still required.
-- [ ] Privacy URL and support URL.
+- [x] Privacy URL and support URL prepared.
 
 Suggested TestFlight beta description:
 
@@ -131,8 +132,10 @@ The app sends user-selected mechanical component photos and context to a backend
 - [ ] Persistent storage decision for feedback/usage if beta grows.
 - [ ] Billing alerts and Gemini quota strategy.
 - [ ] App Store screenshots from the final production build.
-- [ ] Native iOS packaging route decided.
+- [x] Native iOS packaging route decided: Capacitor/native iOS shell after beta stabilization.
 - [x] Initial native packaging route documented in `docs/ios-packaging-handoff.md`.
 - [x] 1024 x 1024 release icon asset prepared.
 - [x] App Store privacy worksheet prepared from current app behavior.
+- [x] TestFlight submission packet prepared.
+- [x] Automated local and hosted release audit added.
 - [ ] Device testing on at least one current iPhone and one older supported iPhone.

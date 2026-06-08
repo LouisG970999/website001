@@ -113,7 +113,7 @@ Update `public/support/support-config.js` before publishing:
 - `/support/legal.html`
 - `/support/feedback.html`
 
-Before publishing, replace the placeholder support email, company/name, support URL, privacy URL, terms URL, publication date, and final hosted domain.
+Before App Store submission, confirm the final legal publisher name and replace the current Render beta URL with the final public domain.
 
 Hosted deployments can override support metadata without code edits by setting `PUBLIC_BASE_URL`, `SUPPORT_EMAIL`, `SUPPORT_WEBSITE`, `SUPPORT_BETA_GUIDE_URL`, `SUPPORT_PRIVACY_URL`, `SUPPORT_PRIVACY_CHOICES_URL`, `SUPPORT_TERMS_URL`, `SUPPORT_LEGAL_URL`, `SUPPORT_FEEDBACK_URL`, `PUBLISHER_NAME`, and `PRIVACY_PUBLICATION_DATE` in the backend environment.
 
@@ -140,6 +140,20 @@ For a local server/support/feedback smoke test, run:
 ```text
 npm run smoke
 ```
+
+Run the publication audit before a release commit:
+
+```text
+npm run release:audit
+```
+
+After deployment, verify the hosted beta and every public support/legal URL:
+
+```text
+npm run release:audit:remote
+```
+
+Release identity, App Store versioning, bundle identifier, public URLs, iOS permission text, and manual blockers are tracked in `release-metadata.json`.
 
 See `docs/beta-feedback-operations.md` for the operating routine during private beta testing.
 

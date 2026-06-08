@@ -1,4 +1,4 @@
-# TechSpec Scanner App Store Listing Draft
+# TechSpec Scanner App Store Listing
 
 ## App Name
 
@@ -70,7 +70,7 @@ TechSpec Scanner analyzes user-submitted photos of mechanical components and ret
 
 Test account:
 
-- Not required for the current local-only version.
+- Not required for the current no-account beta.
 - If accounts are added later, provide Apple with a demo account here.
 
 ## AI Disclaimer Text

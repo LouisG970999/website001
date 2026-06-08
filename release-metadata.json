@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "releaseChannel": "private-beta",
+  "app": {
+    "name": "TechSpec Scanner",
+    "subtitle": "AI scanner for mechanical parts",
+    "marketingVersion": "1.0.0",
+    "buildNumber": "1",
+    "bundleIdentifier": "com.techspecscanner.app",
+    "primaryCategory": "Productivity",
+    "secondaryCategory": "Utilities",
+    "copyright": "Copyright 2026 TechSpec Scanner. All rights reserved."
+  },
+  "publisher": {
+    "displayName": "TechSpec Scanner",
+    "legalNameConfirmed": false
+  },
+  "contact": {
+    "supportEmail": "support@techspecscanner.com"
+  },
+  "urls": {
+    "publicBaseUrl": "https://techspec-scanner-beta.onrender.com",
+    "support": "https://techspec-scanner-beta.onrender.com/support/",
+    "privacy": "https://techspec-scanner-beta.onrender.com/support/privacy.html",
+    "privacyChoices": "https://techspec-scanner-beta.onrender.com/support/privacy-choices.html",
+    "terms": "https://techspec-scanner-beta.onrender.com/support/terms.html",
+    "legal": "https://techspec-scanner-beta.onrender.com/support/legal.html"
+  },
+  "ios": {
+    "cameraUsageDescription": "TechSpec Scanner uses the camera to photograph mechanical components that you choose to analyze.",
+    "photoLibraryUsageDescription": "TechSpec Scanner uses selected photos to analyze and document mechanical components.",
+    "trackingPermissionRequired": false
+  },
+  "releaseReadiness": {
+    "finalCustomDomainConfirmed": false,
+    "appleDeveloperMembershipConfirmed": false,
+    "nativeXcodeProjectCreated": false,
+    "finalLegalReviewCompleted": false,
+    "appStoreScreenshotsCompleted": false,
+    "physicalDeviceMatrixCompleted": false
+  }
+}
